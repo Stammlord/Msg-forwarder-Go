@@ -5,6 +5,9 @@
 		"action": {
 			"type": "view",
 			"path": "msgforwarder/index"
+		},
+		"depends": {
+			"acl": [ "luci-app-msgforwarder" ]
 		}
 	}
 }
