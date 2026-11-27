@@ -46,10 +46,9 @@ chmod 600 /etc/Msg-forwarder-Go/config.json
 /etc/init.d/Msg-forwarder-Go restart >/dev/null 2>&1 || true
 sleep 2
 
-if ! ps | grep -v grep | grep -q '[M]sg-forwarder-Go'; then
-  echo "procd не поднял сервис — запускаю через rc.local"
-  /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
-  cat > /etc/Msg-forwarder-Go/start.sh <<'EOF'
+echo "Создаю служебные скрипты..."
+/etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
+cat > /etc/Msg-forwarder-Go/start.sh <<'EOF'
 #!/bin/sh
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 LINE='/etc/Msg-forwarder-Go/start.sh'
@@ -114,7 +113,9 @@ EOF
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 EOF
-  chmod 755 /etc/Msg-forwarder-Go/*.sh
+chmod 755 /etc/Msg-forwarder-Go/*.sh
+if ! ps | grep -v grep | grep -q '[M]sg-forwarder-Go'; then
+  echo "procd не поднял сервис — запускаю через rc.local"
   /etc/Msg-forwarder-Go/start.sh
 fi
 
