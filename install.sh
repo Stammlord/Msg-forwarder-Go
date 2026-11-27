@@ -44,6 +44,8 @@ if ! ps | grep -v grep | grep -q '[M]sg-forwarder-Go'; then
   /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
   cat > /etc/Msg-forwarder-Go/start.sh <<'EOF'
 #!/bin/sh
+kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+sleep 1
 /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
 EOF
   chmod 755 /etc/Msg-forwarder-Go/start.sh
