@@ -30,7 +30,7 @@ const sections = [
 		title: _('Telegram'),
 		fields: [
 			{ k: 'tg_bot_token', l: _('Токен бота'), t: 'secret', h: _('Получите у @BotFather командой /newbot.') },
-			{ k: 'tg_chat_id', l: _('ID чата'), t: 'text', h: _('ID чата с ботом: узнайте у @userinfobot или из ответа метода getUpdates.') },
+			{ k: 'tg_chat_id', l: _('ID чата'), t: 'text', h: _('Чат, куда бот шлёт сообщения. Сначала напишите боту /start. Для личной переписки подойдёт ваш ID от @userinfobot; для группы добавьте бота в группу и возьмите chat.id из ответа getUpdates или у @get_id_bot.') },
 			{ k: 'telegram_proxy', l: _('Прокси'), t: 'text', h: _('Необязательно. Адрес HTTP/SOCKS5-прокси только для Telegram, например socks5://127.0.0.1:1080.') }
 		]
 	},
