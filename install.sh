@@ -1,5 +1,5 @@
 #!/bin/sh
-# Установка Msg-forwarder-Go на OpenWrt (arm64) одной командой
+# Установка Msg-forwarder-Go на OpenWrt 25.12+ одной командой
 set -e
 
 BASE=https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/main
@@ -24,8 +24,9 @@ chmod 755 /etc/init.d/Msg-forwarder-Go
 
 mkdir -p /etc/Msg-forwarder-Go
 [ -f /etc/Msg-forwarder-Go/config.json ] || echo '{}' > /etc/Msg-forwarder-Go/config.json
-if ! grep -q '"ui_listen"' /etc/Msg-forwarder-Go/config.json; then
-  sed -i '1s/^{/{"ui_listen":"0.0.0.0:8080",/' /etc/Msg-forwarder-Go/config.json
+# Встроенный UI остаётся локальным: настройка идёт из LuCI.
+if grep -q '"ui_listen"' /etc/Msg-forwarder-Go/config.json; then
+  sed -i 's/"ui_listen"[[:space:]]*:[[:space:]]*"[^"]*"/"ui_listen":"127.0.0.1:8080"/' /etc/Msg-forwarder-Go/config.json
 fi
 chmod 700 /etc/Msg-forwarder-Go
 chmod 600 /etc/Msg-forwarder-Go/config.json
@@ -53,12 +54,17 @@ EOF
   /etc/Msg-forwarder-Go/start.sh
 fi
 
-# Старые Lua-файлы вкладки LuCI больше не нужны: интерфейс встроенный.
+echo "Убираю старые Lua-файлы вкладки..."
 rm -f /usr/lib/lua/luci/controller/Msg-forwarder-Go.lua
 rm -f /usr/lib/lua/luci/view/Msg-forwarder-Go/index.htm
+rmdir /usr/lib/lua/luci/view/Msg-forwarder-Go 2>/dev/null || true
+
+echo "Ставлю вкладку LuCI 25.12+..."
+mkdir -p /usr/share/luci/menu.d /usr/share/rpcd/acl.d /www/luci-static/resources/view/msgforwarder
+wget -qO /usr/share/luci/menu.d/luci-app-msgforwarder.json "$BASE/luci25/menu.d/luci-app-msgforwarder.json"
+wget -qO /usr/share/rpcd/acl.d/luci-app-msgforwarder.json "$BASE/luci25/rpcd/acl.d/luci-app-msgforwarder.json"
+wget -qO /www/luci-static/resources/view/msgforwarder/index.js "$BASE/luci25/view/msgforwarder/index.js"
+/etc/init.d/rpcd restart >/dev/null 2>&1 || true
 /etc/init.d/uhttpd restart >/dev/null 2>&1 || true
 
-echo "Готово."
-echo "Интерфейс: http://$(ip -4 -o addr show 2>/dev/null | awk '/inet/{split($4,a,\"/\"); print a[1]; exit}'):8080/"
-echo "Токен для входа:"
-echo "  /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token"
+echo "Готово. Вкладка: LuCI → Службы → Msg-forwarder-Go"
