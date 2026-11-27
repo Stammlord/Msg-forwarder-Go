@@ -142,9 +142,12 @@ return view.extend({
 		const inputs = {};
 		const types = {};
 		const result = E('pre', { 'class': 'mf-result' }, _('Нет вывода'));
+		const resultTop = E('pre', { 'class': 'mf-result' }, _('Нет вывода'));
 
 		function show(text) {
-			result.textContent = text || _('(пусто)');
+			const t = text || _('(пусто)');
+			result.textContent = t;
+			resultTop.textContent = t;
 		}
 
 		function cli(args) {
@@ -193,6 +196,7 @@ return view.extend({
 
 		const body = E('div', { 'class': 'cbi-section' });
 		body.appendChild(E('div', { 'class': 'cbi-section' }, makeSaveButton()));
+		body.appendChild(resultTop);
 
 		body.appendChild(E('h3', _('Подключения')));
 		const statusLine = E('div', { 'class': 'mf-status' }, _('Статус не загружен'));
