@@ -4,6 +4,7 @@
 'require ui';
 
 const CONFIG = '/etc/Msg-forwarder-Go/config.json';
+const BIN = '/usr/bin/Msg-forwarder-Go';
 
 const sections = [
 	{
@@ -66,6 +67,12 @@ const secretFields = [
 	'bark_device_key', 'bark_key'
 ];
 
+function button(label, handler, style) {
+	const b = E('button', { 'class': 'btn' + (style ? ' ' + style : ''), 'type': 'button' }, label);
+	b.addEventListener('click', handler);
+	return b;
+}
+
 function fieldInput(name, type, cfg) {
 	let input;
 
@@ -79,16 +86,14 @@ function fieldInput(name, type, cfg) {
 			'data-field': name
 		});
 
-		if (type === 'secret' && cfg[name]) {
+		if (type === 'secret' && cfg[name])
 			input.placeholder = _('configured');
-		}
-		else if (cfg[name] !== undefined && cfg[name] !== null) {
+		else if (cfg[name] !== undefined && cfg[name] !== null)
 			input.value = String(cfg[name]);
-		}
-	}
 
-	if (type === 'number' && cfg[name] !== undefined)
-		input.value = String(cfg[name]);
+		if (type === 'number' && cfg[name] !== undefined)
+			input.value = String(cfg[name]);
+	}
 
 	return input;
 }
@@ -135,15 +140,82 @@ return view.extend({
 
 	render: function (cfg) {
 		const inputs = {};
+		const result = E('pre', { 'id': 'mf-result', 'class': 'mf-result' }, _('No output yet'));
+
+		function show(text) {
+			result.textContent = text || _('(empty)');
+		}
+
+		function cli(args) {
+			return fs.exec(BIN, ['-config', CONFIG].concat(args))
+				.then(function (r) {
+					return (r && r.stdout) ? r.stdout : (r && r.stderr) ? r.stderr : '';
+				})
+				.catch(function (e) {
+					return _('Error: ') + e.message;
+				});
+		}
+
+		function ctl(args) {
+			return cli(['-ctl'].concat(args));
+		}
+
+		function runAndShow(args) {
+			show(_('Working…'));
+			return cli(args).then(show);
+		}
+
+		function ctlAndShow(args) {
+			show(_('Working…'));
+			return ctl(args).then(show);
+		}
+
 		const body = E('div', { 'class': 'cbi-section' });
+
+		body.appendChild(E('h3', _('Connections')));
+		const statusLine = E('div', { 'class': 'mf-status' }, _('Status not loaded'));
+		body.appendChild(statusLine);
+		body.appendChild(E('div', { 'class': 'cbi-section' }, [
+			button(_('Refresh status'), function () {
+				ctlAndShow(['status']).then(function () {
+					return ctl(['status']);
+				}).then(function (s) {
+					statusLine.textContent = s;
+				});
+			}),
+			button(_('Check VK'), function () { runAndShow(['-test', 'vk']); }),
+			button(_('Check Bot API'), function () { runAndShow(['-test', 'api']); }),
+			button(_('Check Telegram'), function () { runAndShow(['-test', 'tg']); }),
+			button(_('Check MAX'), function () { runAndShow(['-test', 'max']); }),
+			button(_('Check Bark'), function () { runAndShow(['-test', 'bark']); })
+		]));
+		body.appendChild(E('p', { 'class': 'note' },
+			_('MAX SMS login is available in the built-in interface only (enable ui_enabled there).')));
+
+		body.appendChild(E('h3', _('Service control')));
+		const controlRow = E('div', { 'class': 'cbi-section' });
+		for (const svc of ['vk', 'max', 'tg', 'bark']) {
+			controlRow.appendChild(button(svc.toUpperCase() + ': ' + _('on'), function () {
+				ctlAndShow(['control', '-service', svc, '-action', 'on']);
+			}));
+			controlRow.appendChild(button(svc.toUpperCase() + ': ' + _('off'), function () {
+				ctlAndShow(['control', '-service', svc, '-action', 'off']);
+			}));
+		}
+		controlRow.appendChild(button(_('Send test to Telegram'), function () {
+			ctlAndShow(['send', '-service', 'tg', '-text', 'проверка']);
+		}));
+		controlRow.appendChild(button(_('Send test to Bark'), function () {
+			ctlAndShow(['send', '-service', 'bark', '-text', 'проверка']);
+		}));
+		body.appendChild(controlRow);
 
 		for (const sec of sections) {
 			body.appendChild(E('h3', sec.title));
 
 			for (const [name, label, type] of sec.fields) {
 				const input = fieldInput(name, type, cfg);
-				if (input.dataset)
-					input.dataset.type = type || 'text';
+				input.dataset.type = type || 'text';
 				inputs[name] = input;
 
 				const row = E('div', { 'class': 'cbi-row' }, [
@@ -155,14 +227,48 @@ return view.extend({
 			}
 		}
 
-		body.appendChild(E('p', {}, [
-			_('Token for the built-in interface:'),
-			' ',
-			E('code', {}, '/usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token')
+		body.appendChild(E('h3', _('Debug')));
+		body.appendChild(E('div', { 'class': 'cbi-section' }, [
+			button(_('Debug status'), function () {
+				ctlAndShow(['debug', '-action', 'status']);
+			}),
+			button(_('Debug on'), function () {
+				ctlAndShow(['debug', '-action', 'on']);
+			}),
+			button(_('Debug off'), function () {
+				ctlAndShow(['debug', '-action', 'off']);
+			}),
+			button(_('Debug log'), function () {
+				ctlAndShow(['debug', '-action', 'log']);
+			})
 		]));
 
-		const save = E('button', { 'class': 'btn', 'type': 'button' }, _('Save and restart'));
-		save.addEventListener('click', function () {
+		body.appendChild(E('h3', _('JSON editor')));
+		const raw = E('textarea', { 'class': 'mf-raw', rows: 8 });
+		raw.value = JSON.stringify(cfg, null, 2);
+		body.appendChild(raw);
+		body.appendChild(E('p', { 'class': 'note' }, _('Secrets are visible here. Do not share this page.')));
+		body.appendChild(E('div', { 'class': 'cbi-section' }, [
+			button(_('Save raw JSON'), function () {
+				let next;
+				try {
+					next = JSON.parse(raw.value);
+				}
+				catch (e) {
+					show(_('Invalid JSON: ') + e.message);
+					return;
+				}
+				fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600).then(function () {
+					return ctl(['status']);
+				}).then(function () {
+					show(_('Saved'));
+				}).catch(function (e) {
+					show(_('Error: ') + e.message);
+				});
+			})
+		]));
+
+		const save = button(_('Save and restart'), function () {
 			const next = collect(cfg, inputs);
 			fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600)
 				.then(function () {
@@ -172,16 +278,31 @@ return view.extend({
 						});
 				})
 				.then(function () {
+					show(_('Configuration saved'));
 					ui.addNotification(null, E('p', _('Configuration saved')));
 				})
 				.catch(function (e) {
-					ui.addNotification(null, E('p', _('Failed to save: ') + e.message), 'error');
+					show(_('Failed to save: ') + e.message);
 				});
-		});
+		}, 'btn-action');
 
 		body.appendChild(E('div', { 'class': 'cbi-section' }, save));
+		body.appendChild(E('p', {}, [
+			_('Token for the built-in interface:'),
+			' ',
+			E('code', {}, BIN + ' -config ' + CONFIG + ' -ui-token')
+		]));
+		body.appendChild(result);
+
+		const style = E('style', {},
+			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; min-height:2em; white-space:pre-wrap; }' +
+			'.mf-raw { width:100%; font-family:monospace; }' +
+			'.mf-status { background:#f6f6f6; border:1px solid #ddd; padding:8px; white-space:pre-wrap; }' +
+			'.note { color:#666; font-size:12px; }' +
+			'.btn-action { margin-top:8px; }');
 
 		return E('div', {}, [
+			style,
 			E('h2', _('Msg-forwarder-Go')),
 			body
 		]);
