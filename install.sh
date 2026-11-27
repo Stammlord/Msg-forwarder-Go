@@ -24,6 +24,9 @@ chmod 755 /etc/init.d/Msg-forwarder-Go
 
 mkdir -p /etc/Msg-forwarder-Go
 [ -f /etc/Msg-forwarder-Go/config.json ] || echo '{}' > /etc/Msg-forwarder-Go/config.json
+if ! grep -q '"ui_listen"' /etc/Msg-forwarder-Go/config.json; then
+  sed -i '1s/^{/{"ui_listen":"0.0.0.0:8080",/' /etc/Msg-forwarder-Go/config.json
+fi
 chmod 700 /etc/Msg-forwarder-Go
 chmod 600 /etc/Msg-forwarder-Go/config.json
 
@@ -50,12 +53,12 @@ EOF
   /etc/Msg-forwarder-Go/start.sh
 fi
 
-echo "Ставлю вкладку LuCI..."
-mkdir -p /usr/lib/lua/luci/controller /usr/lib/lua/luci/view/Msg-forwarder-Go
-wget -qO /usr/lib/lua/luci/controller/Msg-forwarder-Go.lua "$BASE/luci/controller/Msg-forwarder-Go.lua"
-wget -qO /usr/lib/lua/luci/view/Msg-forwarder-Go/index.htm "$BASE/luci/view/Msg-forwarder-Go/index.htm"
+# Старые Lua-файлы вкладки LuCI больше не нужны: интерфейс встроенный.
+rm -f /usr/lib/lua/luci/controller/Msg-forwarder-Go.lua
+rm -f /usr/lib/lua/luci/view/Msg-forwarder-Go/index.htm
 /etc/init.d/uhttpd restart >/dev/null 2>&1 || true
 
-echo "Готово. Интерфейс: LuCI → Службы → Msg-forwarder-Go"
-echo "Токен встроенного веб-интерфейса:"
+echo "Готово."
+echo "Интерфейс: http://$(ip -4 -o addr show 2>/dev/null | awk '/inet/{split($4,a,\"/\"); print a[1]; exit}'):8080/"
+echo "Токен для входа:"
 echo "  /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token"
