@@ -171,7 +171,28 @@ return view.extend({
 			return ctl(args).then(show);
 		}
 
+		function makeSaveButton() {
+			return button(_('Сохранить и перезапустить'), function () {
+				const next = collect(cfg, inputs, types);
+				fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600)
+					.then(function () {
+						return fs.exec('/etc/init.d/Msg-forwarder-Go', ['restart'])
+							.catch(function () {
+								return fs.exec('/etc/Msg-forwarder-Go/start.sh', []);
+							});
+					})
+					.then(function () {
+						show(_('Конфиг сохранён'));
+						ui.addNotification(null, E('p', _('Конфиг сохранён')));
+					})
+					.catch(function (e) {
+						show(_('Не удалось сохранить: ') + e.message);
+					});
+			}, 'btn-action');
+		}
+
 		const body = E('div', { 'class': 'cbi-section' });
+		body.appendChild(E('div', { 'class': 'cbi-section' }, makeSaveButton()));
 
 		body.appendChild(E('h3', _('Подключения')));
 		const statusLine = E('div', { 'class': 'mf-status' }, _('Статус не загружен'));
@@ -276,25 +297,7 @@ return view.extend({
 			})
 		]));
 
-		const save = button(_('Сохранить и перезапустить'), function () {
-			const next = collect(cfg, inputs, types);
-			fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600)
-				.then(function () {
-					return fs.exec('/etc/init.d/Msg-forwarder-Go', ['restart'])
-						.catch(function () {
-							return fs.exec('/etc/Msg-forwarder-Go/start.sh', []);
-						});
-				})
-				.then(function () {
-					show(_('Конфиг сохранён'));
-					ui.addNotification(null, E('p', _('Конфиг сохранён')));
-				})
-				.catch(function (e) {
-					show(_('Не удалось сохранить: ') + e.message);
-				});
-		}, 'btn-action');
-
-		body.appendChild(E('div', { 'class': 'cbi-section' }, save));
+		body.appendChild(E('div', { 'class': 'cbi-section' }, makeSaveButton()));
 		body.appendChild(E('p', {}, [
 			_('Токен встроенного интерфейса:'),
 			' ',
