@@ -9,17 +9,21 @@ if [ "$(uname -m)" != "aarch64" ]; then
   exit 1
 fi
 
-echo "Скачиваю бинарник..."
-rm -f /usr/bin/Msg-forwarder-Go.new
-wget -O /usr/bin/Msg-forwarder-Go.new "$BASE/Msg-forwarder-Go-arm64"
-SZ=$(wc -c < /usr/bin/Msg-forwarder-Go.new)
-if [ "$SZ" -lt 5000000 ]; then
-  echo "Бинарник скачался не полностью: $SZ байт" >&2
+if [ -f /usr/bin/Msg-forwarder-Go ] && [ "$(wc -c < /usr/bin/Msg-forwarder-Go)" -ge 5000000 ]; then
+  echo "Бинарник уже есть ($(wc -c < /usr/bin/Msg-forwarder-Go) байт), пропускаю скачивание"
+else
+  echo "Скачиваю бинарник..."
   rm -f /usr/bin/Msg-forwarder-Go.new
-  exit 1
+  wget -O /usr/bin/Msg-forwarder-Go.new "$BASE/Msg-forwarder-Go-arm64"
+  SZ=$(wc -c < /usr/bin/Msg-forwarder-Go.new)
+  if [ "$SZ" -lt 5000000 ]; then
+    echo "Бинарник скачался не полностью: $SZ байт" >&2
+    rm -f /usr/bin/Msg-forwarder-Go.new
+    exit 1
+  fi
+  chmod 755 /usr/bin/Msg-forwarder-Go.new
+  mv -f /usr/bin/Msg-forwarder-Go.new /usr/bin/Msg-forwarder-Go
 fi
-chmod 755 /usr/bin/Msg-forwarder-Go.new
-mv -f /usr/bin/Msg-forwarder-Go.new /usr/bin/Msg-forwarder-Go
 
 echo "Скачиваю сервис..."
 wget -qO /etc/init.d/Msg-forwarder-Go "$BASE/init.d-Msg-forwarder-Go"
