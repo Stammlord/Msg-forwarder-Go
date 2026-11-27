@@ -50,5 +50,12 @@ EOF
   /etc/Msg-forwarder-Go/start.sh
 fi
 
-echo "Готово. Токен веб-интерфейса:"
+echo "Ставлю вкладку LuCI..."
+mkdir -p /usr/lib/lua/luci/controller /usr/lib/lua/luci/view/Msg-forwarder-Go
+wget -qO /usr/lib/lua/luci/controller/Msg-forwarder-Go.lua "$BASE/luci/controller/Msg-forwarder-Go.lua"
+wget -qO /usr/lib/lua/luci/view/Msg-forwarder-Go/index.htm "$BASE/luci/view/Msg-forwarder-Go/index.htm"
+/etc/init.d/uhttpd restart >/dev/null 2>&1 || true
+
+echo "Готово. Интерфейс: LuCI → Службы → Msg-forwarder-Go"
+echo "Токен встроенного веб-интерфейса:"
 echo "  /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token"
