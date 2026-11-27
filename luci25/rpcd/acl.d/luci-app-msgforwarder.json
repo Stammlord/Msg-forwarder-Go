@@ -13,7 +13,9 @@
 				"/usr/bin/Msg-forwarder-Go": [ "exec" ],
 				"/etc/init.d/Msg-forwarder-Go": [ "exec" ],
 				"/etc/init.d/Msg-forwarder-Go restart": [ "exec" ],
-				"/etc/Msg-forwarder-Go/start.sh": [ "exec" ]
+				"/etc/Msg-forwarder-Go/start.sh": [ "exec" ],
+				"/etc/Msg-forwarder-Go/stop.sh": [ "exec" ],
+				"/etc/Msg-forwarder-Go/autostart.sh": [ "exec" ]
 			}
 		}
 	}
