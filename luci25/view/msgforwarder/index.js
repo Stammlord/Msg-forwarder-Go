@@ -179,10 +179,7 @@ return view.extend({
 				const next = collect(cfg, inputs, types);
 				fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600)
 					.then(function () {
-						return fs.exec('/etc/init.d/Msg-forwarder-Go', ['restart'])
-							.catch(function () {
-								return fs.exec('/etc/Msg-forwarder-Go/start.sh', []);
-							});
+						return fs.exec('/etc/Msg-forwarder-Go/start.sh', []);
 					})
 					.then(function () {
 						show(_('Конфиг сохранён'));
@@ -294,6 +291,8 @@ return view.extend({
 					return;
 				}
 				fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600).then(function () {
+					return fs.exec('/etc/Msg-forwarder-Go/start.sh', []);
+				}).then(function () {
 					show(_('Сохранено'));
 				}).catch(function (e) {
 					show(_('Ошибка: ') + e.message);
