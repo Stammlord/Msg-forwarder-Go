@@ -17,7 +17,10 @@ h2 { font-size: 16px; margin: 22px 0 8px; border-bottom: 1px solid #eee; padding
 button { padding: 6px 12px; cursor: pointer; }
 code { background: #f2f2f2; padding: 1px 4px; }
 textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: border-box; }
-.status { background:#f6f6f6; border:1px solid #ddd; padding:8px; white-space:pre-wrap; }
+.status { background:#f6f6f6; border:1px solid #ddd; padding:8px; }
+.mf-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; vertical-align:middle; }
+.mf-on { background:#2e8b2e; }
+.mf-off { background:#c22; }
 </style>
 </head>
 <body>
@@ -26,7 +29,12 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 <div class="help">Предпросмотр вкладки LuCI 25.12+ (локальная копия для сравнения). Секретные поля показывают только признак «установлено».</div>
 
 <h2>Подключения</h2>
-<div class="status">Статус: VK — не подключён; MAX — не подключён; Telegram — не проверен; Bark — не настроен.</div>
+<div class="status">
+<div><span class="mf-dot mf-off"></span>VK: off — не настроено: нет vk_token</div>
+<div><span class="mf-dot mf-off"></span>MAX: off — не настроено: нет max_token/max_device_id</div>
+<div><span class="mf-dot mf-on"></span>TG: on — готов к отправке</div>
+<div><span class="mf-dot mf-on"></span>BARK: on — готов к отправке</div>
+</div>
 <div class="buttons">
   <button>Обновить статус</button>
   <button>Проверить VK</button>
@@ -41,10 +49,10 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 
 <h2>Управление сервисами</h2>
 <div class="buttons">
-  <button>VK: вкл</button><button>VK: выкл</button>
-  <button>MAX: вкл</button><button>MAX: выкл</button>
-  <button>TG: вкл</button><button>TG: выкл</button>
-  <button>BARK: вкл</button><button>BARK: выкл</button>
+  <button><span class="mf-dot mf-off"></span>VK: вкл</button><button><span class="mf-dot mf-off"></span>VK: выкл</button>
+  <button><span class="mf-dot mf-off"></span>MAX: вкл</button><button><span class="mf-dot mf-off"></span>MAX: выкл</button>
+  <button><span class="mf-dot mf-on"></span>TG: вкл</button><button><span class="mf-dot mf-on"></span>TG: выкл</button>
+  <button><span class="mf-dot mf-on"></span>BARK: вкл</button><button><span class="mf-dot mf-on"></span>BARK: выкл</button>
   <button>Тест в Telegram</button><button>Тест в Bark</button>
 </div>
 
