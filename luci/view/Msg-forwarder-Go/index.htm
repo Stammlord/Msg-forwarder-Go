@@ -1,0 +1,428 @@
+<%+header%>
+
+<style>
+.mb-dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px}
+.mb-on{background:#28a745}.mb-off{background:#aaa}.mb-error{background:#dc3545}
+</style>
+
+<h2><%:Msg-forwarder-Go%> — <%:настройки%></h2>
+
+<p class="alert-message notice">
+	Настройки сохраняются в <code>/etc/Msg-forwarder-Go/config.json</code> (права 0600).
+	Секретные поля в формах не показываются: вместо них «установлен/не задан».
+	Значения токенов не попадают в логи.
+	Редактор JSON ниже показывает секреты открыто — не открывайте страницу посторонним.
+	После сохранения сервис перезапускается автоматически.
+</p>
+
+<% if err then %>
+	<div class="alert-message error"><%=pcdata(err)%></div>
+<% end %>
+<% if status then %>
+	<div class="alert-message success"><%=pcdata(status)%></div>
+<% end %>
+
+<form method="post" action="<%=pcdata(form_url)%>" id="Msg-forwarder-Go-form">
+	<input type="hidden" name="save" value="1">
+	<input type="hidden" name="token" value="<%=pcdata(token or '')%>">
+	<input type="hidden" name="cfg_mtime" value="<%=pcdata(cfg_mtime or '')%>">
+
+	<h3>VK</h3>
+	<div class="control-group">
+		<label>Пользовательский токен: <%=pcdata(flags.vk and 'установлен' or 'не задан')%></label>
+		<input type="password" name="vk_token" value="" autocomplete="off" placeholder=".token ВКонтакте">
+		<label class="checkbox"><input type="checkbox" name="change_vk_token"> применить новое значение</label>
+	</div>
+	<div class="control-group">
+		<label>VK app ID (для OAuth)</label>
+		<input type="text" name="vk_app_id" value="<%=pcdata(cfg.vk_app_id or '')%>" placeholder="1234567">
+	</div>
+	<div class="control-group">
+		<label>Версия API VK</label>
+		<input type="text" name="vk_api_version" value="<%=pcdata(cfg.vk_api_version or '5.131')%>" placeholder="5.131">
+	</div>
+	<% if flags.oauth then %>
+		<%
+			local oauth = 'https://oauth.vk.com/authorize?client_id=' .. tostring(cfg.vk_app_id)
+				.. '&display=page&redirect_uri=https://oauth.vk.com/blank.html'
+				.. '&scope=messages&response_type=token&v=' .. tostring(cfg.vk_api_version or '5.131')
+		%>
+		<p><a href="<%=pcdata(oauth)%>" target="_blank" rel="noopener">Открыть OAuth ВКонтакте</a> — разрешите доступ и скопируйте токен из адресной строки в поле выше.</p>
+	<% else %>
+		<p class="alert-message notice">Укажите <code>vk_app_id</code>, чтобы получить ссылку на OAuth.</p>
+	<% end %>
+	<button type="button" class="btn" onclick="mb_test('vk', this)">Проверить VK</button>
+
+	<h3>Telegram</h3>
+	<div class="control-group">
+		<label>Bot token: <%=pcdata(flags.tg and 'установлен' or 'не задан')%></label>
+		<input type="password" name="tg_bot_token" value="" autocomplete="off" placeholder="123456789:AA...">
+		<label class="checkbox"><input type="checkbox" name="change_tg_bot_token"> применить новое значение</label>
+	</div>
+	<div class="control-group">
+		<label>Chat ID</label>
+		<input type="text" name="tg_chat_id" value="<%=pcdata(tostring(cfg.tg_chat_id or ''))%>" placeholder="123456789">
+	</div>
+	<div class="control-group">
+		<label>Прокси для Telegram (необязательно)</label>
+		<input type="text" name="telegram_proxy" value="<%=pcdata(cfg.telegram_proxy or '')%>" placeholder="оставьте пустым, если доступ есть">
+	</div>
+	<p class="alert-message notice">
+		Обычно прокси не нужен: кнопка «Проверить доступ к Bot API» обращается к
+		<code>api.telegram.org</code> без токена и ждёт ответ 401.
+		MTProto и TG WS Proxy для Bot API не подходят — они туннелируют только MTProto.
+		Если без прокси не работает, укажите <code>http://</code>, <code>https://</code>,
+		<code>socks5://</code> или <code>socks5h://</code>. Для SOCKS5 лучше <code>socks5h://</code>:
+		тогда DNS-запросы тоже идут через прокси и не уходят локальному резолверу.
+		VK, MAX и Bark всегда идут напрямую.
+		Проверка использует сохранённый конфиг — после изменения прокси сначала нажмите «Сохранить и перезапустить».
+	</p>
+	<button type="button" class="btn" onclick="mb_test('tg', this)">Проверить Telegram</button>
+	<button type="button" class="btn" onclick="mb_test('api', this)">Проверить доступ к Bot API</button>
+
+	<h3>MAX</h3>
+	<div class="control-group">
+		<label>Access token: <%=pcdata(flags.max and 'установлен' or 'не задан')%></label>
+		<input type="password" name="max_token" value="" autocomplete="off" placeholder="токен из web.max.ru">
+		<label class="checkbox"><input type="checkbox" name="change_max_token"> применить новое значение</label>
+	</div>
+	<div class="control-group">
+		<label>Device ID (UUID из браузера)</label>
+		<input type="text" name="max_device_id" value="<%=pcdata(cfg.max_device_id or '')%>" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+	</div>
+	<div class="control-group">
+		<label>WebSocket URL</label>
+		<input type="text" name="max_ws_url" value="<%=pcdata(cfg.max_ws_url or 'wss://api.oneme.ru/websocket')%>">
+	</div>
+	<div class="control-group">
+		<label>User-Agent</label>
+		<input type="text" name="max_user_agent" value="<%=pcdata(cfg.max_user_agent or '')%>" placeholder="Mozilla/5.0 ...">
+	</div>
+	<div class="control-group">
+		<label>App version</label>
+		<input type="text" name="max_app_version" value="<%=pcdata(cfg.max_app_version or '26.11.9')%>">
+	</div>
+	<div class="control-group">
+		<label>Опкод входящих сообщений</label>
+		<input type="text" name="incoming_opcode" value="<%=pcdata(tostring(cfg.incoming_opcode or 128))%>">
+	</div>
+	<p class="alert-message notice">
+		Токен MAX удобнее взять вручную: <code>web.max.ru</code> → F12 → Console →
+		<code>JSON.parse(localStorage.__oneme_auth).token</code> и
+		<code>localStorage.__oneme_device_id</code>.
+		Авторизация по SMS реализована в отдельном встроенном интерфейсе и считается экспериментальной.
+		MAX передаёт User-Agent, версию клиента, локаль, разрешение экрана и часовой пояс как данные устройства.
+		Свой сервер MAX получает токен и текст сообщений — используйте только доверенный адрес WebSocket.
+	</p>
+	<button type="button" class="btn" onclick="mb_test('max', this)">Проверить MAX</button>
+
+	<h3>Bark</h3>
+	<div class="control-group">
+		<label>Сервер Bark</label>
+		<input type="text" name="bark_server_url" value="<%=pcdata(cfg.bark_server_url or 'https://api.day.app')%>" placeholder="https://api.day.app или http://192.168.1.10:8080">
+	</div>
+	<div class="control-group">
+		<label>Device key (кому отправлять)</label>
+		<input type="text" name="bark_device_key" value="<%=pcdata(cfg.bark_device_key or '')%>" placeholder="ключ устройства из приложения Bark">
+	</div>
+	<div class="control-group">
+		<label>Пароль/ключ шифрования: <%=pcdata(flags.bark_key and 'установлен' or 'не задан')%></label>
+		<input type="password" name="bark_key" value="" autocomplete="off" placeholder="ровно 16 символов">
+		<label class="checkbox"><input type="checkbox" name="change_bark_key"> применить новое значение</label>
+	</div>
+	<label class="checkbox"><input type="checkbox" name="bark_encrypt"<% if cfg.bark_encrypt then %> checked<% end %>> шифровать сообщения (AES-128-CBC)</label>
+	<p class="alert-message notice">
+		Для шифрования ключ должен быть ровно 16 символов и совпадать с KEY в настройках «Push Encryption» приложения Bark.
+		IV генерируется случайно и передаётся в параметре <code>iv</code>.
+		Свой сервер Bark получает ключ устройства, ключ шифрования и текст сообщений — используйте только доверенный адрес.
+	</p>
+	<div class="control-group">
+		<label>Заголовок</label>
+		<input type="text" name="bark_title" value="<%=pcdata(cfg.bark_title or 'Msg-forwarder-Go')%>">
+	</div>
+	<div class="control-group">
+		<label>Звук</label>
+		<input type="text" name="bark_sound" value="<%=pcdata(cfg.bark_sound or 'birdsong')%>">
+	</div>
+	<div class="control-group">
+		<label>Группа</label>
+		<input type="text" name="bark_group" value="<%=pcdata(cfg.bark_group or 'Msg-forwarder-Go')%>">
+	</div>
+	<div class="control-group">
+		<label>Уровень</label>
+		<input type="text" name="bark_level" value="<%=pcdata(cfg.bark_level or 'active')%>" placeholder="active / timeSensitive / passive / critical">
+	</div>
+	<div class="control-group">
+		<label>Иконка (URL)</label>
+		<input type="text" name="bark_icon" value="<%=pcdata(cfg.bark_icon or '')%>">
+	</div>
+	<div class="control-group">
+		<label>Ссылка при нажатии</label>
+		<input type="text" name="bark_click_url" value="<%=pcdata(cfg.bark_click_url or '')%>">
+	</div>
+	<button type="button" class="btn" onclick="mb_test('bark', this)">Проверить Bark</button>
+
+	<h3><%:веб-интерфейс%></h3>
+	<div class="control-group">
+		<label>Адрес прослушивания</label>
+		<input type="text" name="ui_listen" value="<%=pcdata(cfg.ui_listen or '127.0.0.1:8080')%>">
+	</div>
+	<label class="checkbox"><input type="checkbox" name="ui_enabled"<% if flags.ui then %> checked<% end %>> включить встроенный веб-интерфейс</label>
+	<p class="alert-message notice">
+		Локальный адрес (127.0.0.1 или ::1) оставляет панель доступной только с роутера.
+		Адрес, отличный от локального, открывает панель и редактор JSON в сети: закрывайте доступ файрволом.
+		Можно отключить интерфейс, если используете только LuCI, — это сэкономит немного ОЗУ.
+	</p>
+
+	<h3><%:управление соединениями%></h3>
+	<p class="alert-message notice">
+		<span class="mb-dot mb-off"></span> серый — выключено,
+		<span class="mb-dot mb-on"></span> зелёный — работает,
+		<span class="mb-dot mb-error"></span> красный — ошибка.
+		Кнопки вкл/выкл/перезапуск действуют до перезапуска процесса, «автозапуск» сохраняется в конфиг.
+	</p>
+	<table class="table" id="mb-table">
+		<tr><th>Служба</th><th>Статус</th><th>Управление</th></tr>
+		<tr>
+			<td><span class="mb-dot mb-off" id="mb-dot-vk"></span> VK</td>
+			<td id="mb-det-vk">—</td>
+			<td>
+				<button type="button" class="btn" onclick="mb_ctl('vk','on')">Включить</button>
+				<button type="button" class="btn" onclick="mb_ctl('vk','off')">Выключить</button>
+				<button type="button" class="btn" onclick="mb_ctl('vk','restart')">Перезапуск</button>
+				<button type="button" class="btn" onclick="mb_ctl('vk','autostart')">Автозапуск: <span id="mb-as-vk">—</span></button>
+				<button type="button" class="btn" onclick="mb_ctl('vk','ping')">Пинг</button>
+				<button type="button" class="btn" onclick="mb_ctl('vk','test')">Тест</button>
+			</td>
+		</tr>
+		<tr>
+			<td><span class="mb-dot mb-off" id="mb-dot-max"></span> MAX</td>
+			<td id="mb-det-max">—</td>
+			<td>
+				<button type="button" class="btn" onclick="mb_ctl('max','on')">Включить</button>
+				<button type="button" class="btn" onclick="mb_ctl('max','off')">Выключить</button>
+				<button type="button" class="btn" onclick="mb_ctl('max','restart')">Перезапуск</button>
+				<button type="button" class="btn" onclick="mb_ctl('max','autostart')">Автозапуск: <span id="mb-as-max">—</span></button>
+				<button type="button" class="btn" onclick="mb_ctl('max','ping')">Пинг</button>
+				<button type="button" class="btn" onclick="mb_ctl('max','test')">Тест</button>
+			</td>
+		</tr>
+		<tr>
+			<td><span class="mb-dot mb-off" id="mb-dot-tg"></span> Telegram</td>
+			<td id="mb-det-tg">—</td>
+			<td>
+				<button type="button" class="btn" onclick="mb_ctl('tg','on')">Включить</button>
+				<button type="button" class="btn" onclick="mb_ctl('tg','off')">Выключить</button>
+				<button type="button" class="btn" onclick="mb_ctl('tg','restart')">Перезапуск</button>
+				<button type="button" class="btn" onclick="mb_ctl('tg','autostart')">Автозапуск: <span id="mb-as-tg">—</span></button>
+				<button type="button" class="btn" onclick="mb_ctl('tg','ping')">Пинг</button>
+				<button type="button" class="btn" onclick="mb_ctl('tg','test')">Тест</button>
+				<button type="button" class="btn" onclick="mb_ctl('tg','chatid')">Узнать chat_id</button>
+			</td>
+		</tr>
+		<tr>
+			<td><span class="mb-dot mb-off" id="mb-dot-bark"></span> Bark</td>
+			<td id="mb-det-bark">—</td>
+			<td>
+				<button type="button" class="btn" onclick="mb_ctl('bark','on')">Включить</button>
+				<button type="button" class="btn" onclick="mb_ctl('bark','off')">Выключить</button>
+				<button type="button" class="btn" onclick="mb_ctl('bark','restart')">Перезапуск</button>
+				<button type="button" class="btn" onclick="mb_ctl('bark','autostart')">Автозапуск: <span id="mb-as-bark">—</span></button>
+				<button type="button" class="btn" onclick="mb_ctl('bark','ping')">Пинг</button>
+				<button type="button" class="btn" onclick="mb_ctl('bark','test')">Тест</button>
+			</td>
+		</tr>
+	</table>
+
+	<h3><%:отладочный лог%></h3>
+	<p class="alert-message notice">
+		Подробная история трафика, соединений и ошибок: тип события, размеры, статусы, длительности, коды сбоев.
+		Токены, имена контактов и текст сообщений не пишутся, секреты маскируются.
+		Файл <code>/etc/Msg-forwarder-Go/debug.log</code> (до 1 МБ плюс 1 МБ предыдущий), права 0600.
+		Включение сохраняется: отладка поднимется и после перезапуска процесса, пока не нажмёте «Выключить». Файл остаётся на диске.
+	</p>
+	<table class="table">
+		<tr>
+			<td><span class="mb-dot mb-off" id="mb-dot-debug"></span> Лог</td>
+			<td id="mb-det-debug">—</td>
+			<td>
+				<button type="button" class="btn" onclick="mb_debug_ctl('on')">Включить</button>
+				<button type="button" class="btn" onclick="mb_debug_ctl('off')">Выключить</button>
+				<button type="button" class="btn" onclick="mb_debug_poll()">Статус</button>
+				<a class="btn" href="<%=pcdata(debug_log_url)%>">Скачать лог</a>
+			</td>
+		</tr>
+	</table>
+	<p class="alert-message notice">
+		Бот ещё нет? Создайте его у <a href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a>
+		командой <code>/newbot</code>, скопируйте выданный токен в поле «Bot token» выше,
+		напишите боту любое сообщение и нажмите «Узнать chat_id» — он подставит ваш chat_id.
+		Затем «Сохранить и перезапустить» и «Тест»/«Отправить тест».
+	</p>
+	<div class="control-group">
+		<label>Тестовое сообщение</label>
+		<input type="text" id="mb-text" placeholder="Проверка доставки">
+	</div>
+	<button type="button" class="btn" onclick="mb_send('tg')">Отправить в Telegram</button>
+	<button type="button" class="btn" onclick="mb_send('bark')">Отправить в Bark</button>
+
+	<h3><%:действия%></h3>
+	<button type="submit" class="btn primary">Сохранить и перезапустить</button>
+	<button type="button" class="btn" onclick="mb_test('ui-token', this)">Показать токен веб-интерфейса</button>
+	<pre id="mb-status" style="white-space:pre-wrap;min-height:1.5em"></pre>
+</form>
+
+<h3>Файл конфигурации (JSON)</h3>
+<p class="alert-message notice">
+	Редактор JSON (raw) показывает конфиг как есть: токены и ключи видны открыто.
+	Не сохраняйте страницу с этим текстом в общих местах и не открывайте её посторонним.
+	Поставьте галочку «разрешить редактирование», поправьте JSON и нажмите «Сохранить JSON».
+	«Отмена» возвращает последний загруженный текст. Неизвестные поля при сохранении удаляются.
+</p>
+<form method="post" action="<%=pcdata(form_url)%>" id="mb-raw-form">
+	<input type="hidden" name="raw_save" value="1">
+	<input type="hidden" name="token" value="<%=pcdata(token or '')%>">
+	<label class="checkbox"><input type="checkbox" id="mb-raw-edit" name="raw_edit" onchange="mb_raw_toggle()"> разрешить редактирование</label>
+	<textarea id="mb-raw-config" name="rawconfig" rows="16" spellcheck="false" style="width:100%;box-sizing:border-box;font-family:monospace" readonly><%=pcdata(raw_cfg)%></textarea>
+	<button type="button" class="btn" onclick="mb_raw_save()">Сохранить JSON</button>
+	<button type="button" class="btn" onclick="mb_raw_cancel()">Отмена</button>
+	<button type="button" class="btn" onclick="mb_raw_restart()">Перезапустить сервис</button>
+	<pre id="mb-raw-status" style="white-space:pre-wrap;min-height:1.5em"></pre>
+</form>
+
+<script type="text/javascript">
+var mbToken = '<%=pcdata(token or '')%>';
+
+function mb_test(mode, btn) {
+	var out = document.getElementById('mb-status');
+	out.textContent = '...';
+	fetch('<%=pcdata(test_url)%>', {
+		method: 'POST',
+		body: new URLSearchParams({mode: mode, token: mbToken})
+	}).then(function (r) { return r.text(); }).then(function (t) { out.textContent = t; mb_poll(); })
+	  .catch(function (e) { out.textContent = 'Ошибка запроса: ' + e; });
+}
+
+var mbAuto = {
+	vk: <%=pcdata(tostring(autostart.vk))%>,
+	max: <%=pcdata(tostring(autostart.max))%>,
+	tg: <%=pcdata(tostring(autostart.tg))%>,
+	bark: <%=pcdata(tostring(autostart.bark))%>
+};
+
+function mb_paint(st) {
+	['vk', 'max', 'tg', 'bark'].forEach(function (n) {
+		var s = st[n] || {state: 'off', detail: ''};
+		var cls = s.state === 'on' ? 'mb-on' : (s.state === 'error' ? 'mb-error' : 'mb-off');
+		document.getElementById('mb-dot-' + n).className = 'mb-dot ' + cls;
+		document.getElementById('mb-det-' + n).textContent = s.detail || s.state;
+	});
+}
+
+function mb_poll() {
+	fetch('<%=pcdata(status_url)%>').then(function (r) { return r.json(); })
+		.then(mb_paint).catch(function () {});
+	mb_debug_poll();
+}
+
+function mb_fmt_bytes(n) {
+	return n < 1024 ? n + ' Б' : Math.round(n / 1024) + ' КБ';
+}
+function mb_paint_debug(d) {
+	var dot = document.getElementById('mb-dot-debug');
+	if (!dot) return;
+	dot.className = 'mb-dot ' + (d.enabled ? 'mb-on' : 'mb-off');
+	document.getElementById('mb-det-debug').textContent = d.enabled
+		? 'пишется: ' + mb_fmt_bytes(d.bytes) + ' (прошлый файл ' + mb_fmt_bytes(d.prev_bytes) + ')' +
+		  (d.persisted ? ' · после рестарта' : '') +
+		  (d.forced_flushes ? ' · переполнений буфера: ' + d.forced_flushes : '')
+		: 'выключен';
+}
+function mb_debug_poll() {
+	fetch('<%=pcdata(debug_status_url)%>').then(function (r) { return r.json(); })
+		.then(mb_paint_debug).catch(function () {});
+}
+function mb_debug_ctl(act) {
+	var out = document.getElementById('mb-status');
+	out.textContent = '...';
+	fetch('<%=pcdata(debug_url)%>', {
+		method: 'POST',
+		body: new URLSearchParams({act: act, token: mbToken})
+	}).then(function (r) { return r.text(); }).then(function (t) {
+		out.textContent = t;
+		mb_debug_poll();
+	}).catch(function (e) { out.textContent = 'Ошибка: ' + e; });
+}
+
+function mb_ctl(service, action) {
+	var out = document.getElementById('mb-status');
+	out.textContent = '...';
+	var body = new URLSearchParams({service: service, action: action, token: mbToken});
+	if (action === 'autostart') {
+		mbAuto[service] = !mbAuto[service];
+		body.set('value', String(mbAuto[service]));
+	}
+	fetch('<%=pcdata(control_url)%>', {method: 'POST', body: body})
+		.then(function (r) { return r.text(); }).then(function (t) {
+			out.textContent = t;
+			if (action === 'chatid') {
+				var m = t.match(/^chat_id:\s*(\d+)/);
+				if (m) document.querySelector('input[name="tg_chat_id"]').value = m[1];
+			}
+			if (action === 'autostart')
+				document.getElementById('mb-as-' + service).textContent = mbAuto[service] ? 'вкл' : 'выкл';
+			mb_poll();
+		}).catch(function (e) { out.textContent = 'Ошибка: ' + e; });
+}
+
+function mb_send(service) {
+	var out = document.getElementById('mb-status');
+	out.textContent = '...';
+	var body = new URLSearchParams({service: service, text: document.getElementById('mb-text').value, token: mbToken});
+	fetch('<%=pcdata(send_url)%>', {method: 'POST', body: body})
+		.then(function (r) { return r.text(); }).then(function (t) { out.textContent = t; mb_poll(); })
+		.catch(function (e) { out.textContent = 'Ошибка: ' + e; });
+}
+
+function mb_raw_toggle() {
+	document.getElementById('mb-raw-config').readOnly = !document.getElementById('mb-raw-edit').checked;
+}
+var mbRawInitial = document.getElementById('mb-raw-config').value;
+function mb_raw_cancel() {
+	document.getElementById('mb-raw-config').value = mbRawInitial;
+	document.getElementById('mb-raw-edit').checked = false;
+	mb_raw_toggle();
+	document.getElementById('mb-raw-status').textContent = 'Отменено.';
+}
+function mb_raw_save() {
+	var out = document.getElementById('mb-raw-status');
+	out.textContent = '...';
+	var body = new FormData(document.getElementById('mb-raw-form'));
+	body.set('token', mbToken);
+	fetch('<%=pcdata(rawsave_url)%>', {method: 'POST', body: body})
+		.then(function (r) { return r.text(); }).then(function (t) {
+			out.textContent = t;
+			if (t.indexOf('Сохранено') === 0) {
+				mbRawInitial = document.getElementById('mb-raw-config').value;
+				setTimeout(function () { location.reload(); }, 1200);
+			}
+			mb_poll();
+		}).catch(function (e) { out.textContent = 'Ошибка: ' + e; });
+}
+function mb_raw_restart() {
+	var out = document.getElementById('mb-raw-status');
+	out.textContent = '...';
+	fetch('<%=pcdata(restart_url)%>', {method: 'POST', body: new URLSearchParams({token: mbToken})})
+		.then(function (r) { return r.text(); }).then(function (t) { out.textContent = t; })
+		.catch(function (e) { out.textContent = 'Ошибка: ' + e; });
+}
+mb_raw_toggle();
+
+['vk', 'max', 'tg', 'bark'].forEach(function (n) {
+	document.getElementById('mb-as-' + n).textContent = mbAuto[n] ? 'вкл' : 'выкл';
+});
+mb_poll();
+setInterval(mb_poll, 4000);
+</script>
+
+<%+footer%>
