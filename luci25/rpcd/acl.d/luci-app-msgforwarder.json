@@ -1,0 +1,20 @@
+{
+	"luci-app-msgforwarder": {
+		"description": "Grant access to Msg-forwarder-Go configuration and service control",
+		"read": {
+			"file": {
+				"/etc/Msg-forwarder-Go/config.json": [ "read", "stat" ]
+			}
+		},
+		"write": {
+			"file": {
+				"/etc/Msg-forwarder-Go/config.json": [ "write", "read", "stat" ],
+				"/etc/Msg-forwarder-Go/config.json.bak": [ "write", "read", "stat" ],
+				"/usr/bin/Msg-forwarder-Go": [ "exec" ],
+				"/etc/init.d/Msg-forwarder-Go": [ "exec" ],
+				"/etc/init.d/Msg-forwarder-Go restart": [ "exec" ],
+				"/etc/Msg-forwarder-Go/start.sh": [ "exec" ]
+			}
+		}
+	}
+}
