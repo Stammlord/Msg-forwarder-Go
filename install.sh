@@ -44,20 +44,41 @@ if ! ps | grep -v grep | grep -q '[M]sg-forwarder-Go'; then
   /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
   cat > /etc/Msg-forwarder-Go/start.sh <<'EOF'
 #!/bin/sh
+/etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
+LINE='/etc/Msg-forwarder-Go/start.sh'
+[ -f /etc/rc.local ] || { echo '#!/bin/sh' > /etc/rc.local; echo 'exit 0' >> /etc/rc.local; chmod 755 /etc/rc.local; }
+if ! grep -qF "$LINE" /etc/rc.local; then
+  if grep -q '^exit 0' /etc/rc.local; then
+    sed -i "s|^exit 0|$LINE\nexit 0|" /etc/rc.local
+  else
+    echo "$LINE" >> /etc/rc.local
+  fi
+fi
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
 EOF
-  chmod 755 /etc/Msg-forwarder-Go/start.sh
-  LINE='/etc/Msg-forwarder-Go/start.sh'
-  [ -f /etc/rc.local ] || { echo '#!/bin/sh' > /etc/rc.local; echo 'exit 0' >> /etc/rc.local; chmod 755 /etc/rc.local; }
-  if ! grep -qF "$LINE" /etc/rc.local; then
-    if grep -q '^exit 0' /etc/rc.local; then
-      sed -i "s|^exit 0|$LINE\nexit 0|" /etc/rc.local
-    else
-      echo "$LINE" >> /etc/rc.local
-    fi
-  fi
+  cat > /etc/Msg-forwarder-Go/stop.sh <<'EOF'
+#!/bin/sh
+/etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
+sed -i '/Msg-forwarder-Go\/start.sh/d' /etc/rc.local 2>/dev/null || true
+kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+sleep 1
+EOF
+  cat > /etc/Msg-forwarder-Go/autostart.sh <<'EOF'
+#!/bin/sh
+if grep -qF '/etc/Msg-forwarder-Go/start.sh' /etc/rc.local 2>/dev/null; then
+  echo 'автозапуск: включён (rc.local)'
+else
+  echo 'автозапуск: выключен'
+fi
+if ps | grep -q '[M]sg-forwarder-Go'; then
+  echo 'процесс: запущен'
+else
+  echo 'процесс: остановлен'
+fi
+EOF
+  chmod 755 /etc/Msg-forwarder-Go/start.sh /etc/Msg-forwarder-Go/stop.sh /etc/Msg-forwarder-Go/autostart.sh
   /etc/Msg-forwarder-Go/start.sh
 fi
 
