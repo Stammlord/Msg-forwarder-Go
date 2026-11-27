@@ -37,6 +37,7 @@ chmod 600 /etc/Msg-forwarder-Go/config.json
 
 /etc/init.d/Msg-forwarder-Go enable >/dev/null 2>&1 || true
 /etc/init.d/Msg-forwarder-Go restart >/dev/null 2>&1 || true
+sleep 2
 
 if ! ps | grep -v grep | grep -q '[M]sg-forwarder-Go'; then
   echo "procd не поднял сервис — запускаю через rc.local"
