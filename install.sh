@@ -78,7 +78,36 @@ else
   echo 'процесс: остановлен'
 fi
 EOF
-  chmod 755 /etc/Msg-forwarder-Go/start.sh /etc/Msg-forwarder-Go/stop.sh /etc/Msg-forwarder-Go/autostart.sh
+  cat > /etc/Msg-forwarder-Go/autostart-on.sh <<'EOF'
+#!/bin/sh
+/etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
+LINE='/etc/Msg-forwarder-Go/start.sh'
+[ -f /etc/rc.local ] || { echo '#!/bin/sh' > /etc/rc.local; echo 'exit 0' >> /etc/rc.local; chmod 755 /etc/rc.local; }
+if ! grep -qF "$LINE" /etc/rc.local; then
+  if grep -q '^exit 0' /etc/rc.local; then
+    sed -i "s|^exit 0|$LINE\nexit 0|" /etc/rc.local
+  else
+    echo "$LINE" >> /etc/rc.local
+  fi
+fi
+EOF
+  cat > /etc/Msg-forwarder-Go/autostart-off.sh <<'EOF'
+#!/bin/sh
+/etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
+sed -i '/Msg-forwarder-Go\/start.sh/d' /etc/rc.local 2>/dev/null || true
+EOF
+  cat > /etc/Msg-forwarder-Go/process-start.sh <<'EOF'
+#!/bin/sh
+kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+sleep 1
+/usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
+EOF
+  cat > /etc/Msg-forwarder-Go/process-stop.sh <<'EOF'
+#!/bin/sh
+kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+sleep 1
+EOF
+  chmod 755 /etc/Msg-forwarder-Go/*.sh
   /etc/Msg-forwarder-Go/start.sh
 fi
 
