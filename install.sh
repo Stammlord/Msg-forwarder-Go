@@ -22,17 +22,13 @@ echo "Скачиваю сервис..."
 wget -qO /etc/init.d/Msg-forwarder-Go "$BASE/init.d-Msg-forwarder-Go"
 chmod 755 /etc/init.d/Msg-forwarder-Go
 
-addgroup Msg-forwarder-Go 2>/dev/null || true
-adduser -S -H -G Msg-forwarder-Go Msg-forwarder-Go 2>/dev/null || true
-
 mkdir -p /etc/Msg-forwarder-Go
 [ -f /etc/Msg-forwarder-Go/config.json ] || echo '{}' > /etc/Msg-forwarder-Go/config.json
-chown -R Msg-forwarder-Go:Msg-forwarder-Go /etc/Msg-forwarder-Go
 chmod 700 /etc/Msg-forwarder-Go
 chmod 600 /etc/Msg-forwarder-Go/config.json
 
 /etc/init.d/Msg-forwarder-Go enable
-/etc/init.d/Msg-forwarder-Go start
+/etc/init.d/Msg-forwarder-Go restart
 
 echo "Готово. Токен веб-интерфейса:"
 echo "  /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token"
