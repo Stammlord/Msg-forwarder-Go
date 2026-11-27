@@ -310,6 +310,19 @@ return view.extend({
 		}));
 		body.appendChild(controlRow);
 
+		body.appendChild(E('h3', _('Управление процессом')));
+		body.appendChild(E('div', { 'class': 'cbi-section' }, [
+			button(_('Статус автозапуска'), function () {
+				scriptAndShow('/etc/Msg-forwarder-Go/autostart.sh');
+			}),
+			button(_('Включить'), function () {
+				scriptAndShow('/etc/Msg-forwarder-Go/start.sh');
+			}),
+			button(_('Полностью остановить'), function () {
+				scriptAndShow('/etc/Msg-forwarder-Go/stop.sh');
+			})
+		]));
+
 		for (const sec of sections) {
 			body.appendChild(E('h3', sec.title));
 
