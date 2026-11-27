@@ -37,16 +37,16 @@ const sections = [
 	{
 		title: _('Bark'),
 		fields: [
-			{ k: 'bark_server_url', l: _('Адрес сервера'), t: 'text', h: _('URL вашего сервера Bark, например https://bark.example.com.') },
-			{ k: 'bark_device_key', l: _('Ключ устройства'), t: 'secret', h: _('Ключ из QR-кода или ссылки, которую показывает приложение Bark.') },
-			{ k: 'bark_key', l: _('Ключ шифрования'), t: 'secret', h: _('Нужен только при включённом шифровании AES-128-CBC.') },
-			{ k: 'bark_encrypt', l: _('Включить шифрование'), t: 'bool', h: _('Шифровать текст уведомлений. Требуется ключ шифрования.') },
-			{ k: 'bark_title', l: _('Заголовок'), t: 'text', h: _('Заголовок push-уведомления.') },
-			{ k: 'bark_sound', l: _('Звук'), t: 'text', h: _('Название звука Bark, например birdsong.') },
-			{ k: 'bark_group', l: _('Группа'), t: 'text', h: _('Группа уведомлений в Bark.') },
-			{ k: 'bark_level', l: _('Уровень'), t: 'text', h: _('Уровень важности: active, timeSensitive, passive или critical.') },
-			{ k: 'bark_icon', l: _('Иконка'), t: 'text', h: _('Ссылка на изображение-иконку уведомления.') },
-			{ k: 'bark_click_url', l: _('Ссылка при нажатии'), t: 'text', h: _('Адрес, который откроется при нажатии на уведомление.') }
+			{ k: 'bark_server_url', l: _('Адрес сервера'), t: 'text', h: _('Базовый URL из приложения Bark, например https://api.day.app. Программа сама добавит /push.') },
+			{ k: 'bark_device_key', l: _('Ключ устройства'), t: 'secret', h: _('Значение device_key из настроек сервера Bark — часть ссылки после адреса хоста.') },
+			{ k: 'bark_key', l: _('Ключ шифрования'), t: 'secret', h: _('Ровно 16 символов из поля Encryption Key в приложении Bark. Нужен только при шифровании.') },
+			{ k: 'bark_encrypt', l: _('Включить шифрование'), t: 'bool', h: _('Поставьте галочку, если в Bark включено шифрование, и вставьте тот же ключ выше.') },
+			{ k: 'bark_title', l: _('Заголовок'), t: 'text', h: _('Поле title в JSON Bark. К нему автоматически добавится источник сообщения.') },
+			{ k: 'bark_sound', l: _('Звук'), t: 'text', h: _('Поле sound в JSON Bark, например birdsong.') },
+			{ k: 'bark_group', l: _('Группа'), t: 'text', h: _('Поле group в JSON Bark.') },
+			{ k: 'bark_level', l: _('Уровень'), t: 'text', h: _('Поле level в JSON Bark: active, timeSensitive, passive или critical.') },
+			{ k: 'bark_icon', l: _('Иконка'), t: 'text', h: _('Поле icon в JSON Bark — ссылка на картинку.') },
+			{ k: 'bark_click_url', l: _('Ссылка при нажатии'), t: 'text', h: _('Поле url в JSON Bark — адрес, который откроется по нажатию.') }
 		]
 	},
 	{
@@ -213,6 +213,11 @@ return view.extend({
 
 		for (const sec of sections) {
 			body.appendChild(E('h3', sec.title));
+
+			if (sec.title === 'Bark') {
+				body.appendChild(E('p', { 'class': 'mf-help' },
+					_('Программа отправляет POST /push с JSON. Вкладки GET и POST в приложении Bark — только примеры запроса, заполнять их не нужно. Поле body — это текст самого сообщения, оно подставляется автоматически.')));
+			}
 
 			for (const field of sec.fields) {
 				const input = fieldInput(field, cfg);
