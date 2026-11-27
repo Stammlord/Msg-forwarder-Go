@@ -164,6 +164,57 @@ return view.extend({
 			return cli(['-ctl'].concat(args));
 		}
 
+		function script(path) {
+			return fs.exec(path, [])
+				.then(function (r) {
+					return (r && r.stdout) ? r.stdout : (r && r.stderr) ? r.stderr : '';
+				})
+				.catch(function (e) {
+					return _('Ошибка: ') + e.message;
+				});
+		}
+
+		function scriptAndShow(path) {
+			show(_('Работаю…'));
+			return script(path).then(show);
+		}
+
+		const statusDots = {};
+		const statusLabels = {};
+		const controlDots = {};
+
+		function refreshStatus() {
+			show(_('Работаю…'));
+			return ctl(['status']).then(function (s) {
+				show(s);
+				let data = null;
+				try {
+					data = JSON.parse(s);
+				}
+				catch (e) {
+					data = null;
+				}
+				if (!data) {
+					statusLine.textContent = s;
+					return;
+				}
+				statusLine.textContent = '';
+				for (const svc of ['vk', 'max', 'tg', 'bark']) {
+					const info = data[svc] || {};
+					const on = info.state === 'on';
+					if (statusDots[svc])
+						statusDots[svc].className = 'mf-dot ' + (on ? 'mf-on' : 'mf-off');
+					if (controlDots[svc]) {
+						for (const d of controlDots[svc])
+							d.className = 'mf-dot ' + (on ? 'mf-on' : 'mf-off');
+					}
+					if (statusLabels[svc])
+						statusLabels[svc].textContent = svc.toUpperCase() + ': ' +
+							(info.state || '?') + (info.detail ? ' — ' + info.detail : '');
+				}
+			});
+		}
+
 		function runAndShow(args) {
 			show(_('Работаю…'));
 			return cli(args).then(show);
@@ -214,16 +265,17 @@ return view.extend({
 		body.appendChild(resultTop);
 
 		body.appendChild(E('h3', _('Подключения')));
-		const statusLine = E('div', { 'class': 'mf-status' }, _('Статус не загружен'));
+		const statusLine = E('div', { 'class': 'mf-status' });
+		for (const svc of ['vk', 'max', 'tg', 'bark']) {
+			const dot = E('span', { 'class': 'mf-dot mf-off' });
+			const label = E('span', {}, svc.toUpperCase() + ': ?');
+			statusDots[svc] = dot;
+			statusLabels[svc] = label;
+			statusLine.appendChild(E('div', { 'class': 'mf-svc' }, [dot, label]));
+		}
 		body.appendChild(statusLine);
 		body.appendChild(E('div', { 'class': 'cbi-section' }, [
-			button(_('Обновить статус'), function () {
-				show(_('Работаю…'));
-				ctl(['status']).then(function (s) {
-					statusLine.textContent = s;
-					show(s);
-				});
-			}),
+			button(_('Обновить статус'), function () { refreshStatus(); }),
 			button(_('Проверить VK'), function () { runAndShow(['-test', 'vk']); }),
 			button(_('Проверить Bot API'), function () { runAndShow(['-test', 'api']); }),
 			button(_('Проверить Telegram'), function () { runAndShow(['-test', 'tg']); }),
@@ -236,12 +288,19 @@ return view.extend({
 		body.appendChild(E('h3', _('Управление сервисами')));
 		const controlRow = E('div', { 'class': 'cbi-section' });
 		for (const svc of ['vk', 'max', 'tg', 'bark']) {
-			controlRow.appendChild(button(svc.toUpperCase() + ': ' + _('вкл'), function () {
-				ctlAndShow(['control', '-service', svc, '-action', 'on']);
-			}));
-			controlRow.appendChild(button(svc.toUpperCase() + ': ' + _('выкл'), function () {
-				ctlAndShow(['control', '-service', svc, '-action', 'off']);
-			}));
+			controlDots[svc] = [];
+			for (const act of ['on', 'off']) {
+				const dot = E('span', { 'class': 'mf-dot mf-off' });
+				controlDots[svc].push(dot);
+				const b = E('button', { 'class': 'btn', 'type': 'button' }, [
+					dot,
+					svc.toUpperCase() + ': ' + (act === 'on' ? _('вкл') : _('выкл'))
+				]);
+				b.addEventListener('click', function () {
+					ctlAndShow(['control', '-service', svc, '-action', act]);
+				});
+				controlRow.appendChild(b);
+			}
 		}
 		controlRow.appendChild(button(_('Тест в Telegram'), function () {
 			ctlAndShow(['send', '-service', 'tg', '-text', 'проверка']);
@@ -336,11 +395,16 @@ return view.extend({
 			E('code', {}, BIN + ' -config ' + CONFIG + ' -ui-token')
 		]));
 		body.appendChild(result);
+		refreshStatus();
 
 		const style = E('style', {},
 			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; min-height:2em; white-space:pre-wrap; }' +
 			'.mf-raw { width:100%; font-family:monospace; }' +
-			'.mf-status { background:#f6f6f6; border:1px solid #ddd; padding:8px; white-space:pre-wrap; }' +
+			'.mf-status { background:#f6f6f6; border:1px solid #ddd; padding:8px; }' +
+			'.mf-svc { margin:2px 0; }' +
+			'.mf-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; vertical-align:middle; }' +
+			'.mf-on { background:#2e8b2e; }' +
+			'.mf-off { background:#c22; }' +
 			'.cbi-row { display:flex; align-items:flex-start; margin:8px 0; gap:8px; }' +
 			'.cbi-row > label { width:230px; flex:0 0 230px; padding-top:5px; }' +
 			'.cbi-row .mf-field { flex:1; min-width:0; }' +
