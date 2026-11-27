@@ -182,6 +182,8 @@ return view.extend({
 		const statusDots = {};
 		const statusLabels = {};
 		const controlDots = {};
+		const controlLabels = {};
+		const serviceStates = {};
 
 		function refreshStatus() {
 			show(_('Работаю…'));
@@ -204,10 +206,13 @@ return view.extend({
 					const on = info.state === 'on';
 					if (statusDots[svc])
 						statusDots[svc].className = 'mf-dot ' + (on ? 'mf-on' : 'mf-off');
+					serviceStates[svc] = info.state || 'off';
 					if (controlDots[svc]) {
 						for (const d of controlDots[svc])
 							d.className = 'mf-dot ' + (on ? 'mf-on' : 'mf-off');
 					}
+					if (controlLabels[svc])
+						controlLabels[svc].textContent = svc.toUpperCase() + ': ' + (on ? _('вкл') : _('выкл'));
 					if (statusLabels[svc])
 						statusLabels[svc].textContent = svc.toUpperCase() + ': ' +
 							(info.state || '?') + (info.detail ? ' — ' + info.detail : '');
@@ -288,19 +293,16 @@ return view.extend({
 		body.appendChild(E('h3', _('Управление сервисами')));
 		const controlRow = E('div', { 'class': 'cbi-section' });
 		for (const svc of ['vk', 'max', 'tg', 'bark']) {
-			controlDots[svc] = [];
-			for (const act of ['on', 'off']) {
-				const dot = E('span', { 'class': 'mf-dot mf-off' });
-				controlDots[svc].push(dot);
-				const b = E('button', { 'class': 'btn', 'type': 'button' }, [
-					dot,
-					svc.toUpperCase() + ': ' + (act === 'on' ? _('вкл') : _('выкл'))
-				]);
-				b.addEventListener('click', function () {
-					ctlAndShow(['control', '-service', svc, '-action', act]);
-				});
-				controlRow.appendChild(b);
-			}
+			const dot = E('span', { 'class': 'mf-dot mf-off' });
+			const label = E('span', {}, svc.toUpperCase() + ': ' + _('выкл'));
+			controlDots[svc] = [dot];
+			controlLabels[svc] = label;
+			const b = E('button', { 'class': 'btn', 'type': 'button' }, [dot, label]);
+			b.addEventListener('click', function () {
+				const act = serviceStates[svc] === 'on' ? 'off' : 'on';
+				ctlAndShow(['control', '-service', svc, '-action', act]);
+			});
+			controlRow.appendChild(b);
 		}
 		controlRow.appendChild(button(_('Тест в Telegram'), function () {
 			ctlAndShow(['send', '-service', 'tg', '-text', 'проверка']);
