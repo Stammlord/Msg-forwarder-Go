@@ -24,9 +24,13 @@ chmod 755 /etc/init.d/Msg-forwarder-Go
 
 mkdir -p /etc/Msg-forwarder-Go
 [ -f /etc/Msg-forwarder-Go/config.json ] || echo '{}' > /etc/Msg-forwarder-Go/config.json
-# Встроенный UI остаётся локальным: настройка идёт из LuCI.
-if grep -q '"ui_listen"' /etc/Msg-forwarder-Go/config.json; then
-  sed -i 's/"ui_listen"[[:space:]]*:[[:space:]]*"[^"]*"/"ui_listen":"127.0.0.1:8080"/' /etc/Msg-forwarder-Go/config.json
+# Настройка идёт из LuCI, поэтому встроенный UI по умолчанию выключен и не занимает порт.
+if grep -q '"ui_enabled"' /etc/Msg-forwarder-Go/config.json; then
+  sed -i 's/"ui_enabled"[[:space:]]*:[[:space:]]*true/"ui_enabled":false/' /etc/Msg-forwarder-Go/config.json
+elif grep -q '^{[[:space:]]*}$' /etc/Msg-forwarder-Go/config.json; then
+  echo '{"ui_enabled":false}' > /etc/Msg-forwarder-Go/config.json
+else
+  sed -i '1s/^{/{"ui_enabled":false,/' /etc/Msg-forwarder-Go/config.json
 fi
 chmod 700 /etc/Msg-forwarder-Go
 chmod 600 /etc/Msg-forwarder-Go/config.json
