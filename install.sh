@@ -64,6 +64,7 @@ mkdir -p /usr/share/luci/menu.d /usr/share/rpcd/acl.d /www/luci-static/resources
 wget -qO /usr/share/luci/menu.d/luci-app-msgforwarder.json "$BASE/luci25/menu.d/luci-app-msgforwarder.json"
 wget -qO /usr/share/rpcd/acl.d/luci-app-msgforwarder.json "$BASE/luci25/rpcd/acl.d/luci-app-msgforwarder.json"
 wget -qO /www/luci-static/resources/view/msgforwarder/index.js "$BASE/luci25/view/msgforwarder/index.js"
+rm -f /tmp/luci-* 2>/dev/null || true
 /etc/init.d/rpcd restart >/dev/null 2>&1 || true
 /etc/init.d/uhttpd restart >/dev/null 2>&1 || true
 
