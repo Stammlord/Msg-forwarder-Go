@@ -10,54 +10,54 @@ const sections = [
 	{
 		title: _('VK'),
 		fields: [
-			['vk_token', _('User token'), 'secret'],
-			['vk_app_id', _('App ID')],
-			['vk_api_version', _('API version')]
-		]
-	},
-	{
-		title: _('Telegram'),
-		fields: [
-			['tg_bot_token', _('Bot token'), 'secret'],
-			['tg_chat_id', _('Chat ID')],
-			['telegram_proxy', _('Proxy (http:// or socks5://)')]
+			{ k: 'vk_token', l: _('Токен пользователя'), t: 'secret', h: _('Получить через OAuth ВКонтакте с правами messages или скопировать из настроек своего приложения.') },
+			{ k: 'vk_app_id', l: _('ID приложения'), t: 'text', h: _('Создайте приложение в разделе «Разработчикам → Приложения» ВКонтакте и скопируйте его ID.') },
+			{ k: 'vk_api_version', l: _('Версия API'), t: 'text', h: _('Версия Long Poll API, например 5.131. Обычно менять не нужно.') }
 		]
 	},
 	{
 		title: _('MAX'),
 		fields: [
-			['max_token', _('Web token'), 'secret'],
-			['max_device_id', _('Device ID'), 'secret'],
-			['max_ws_url', _('WebSocket URL')],
-			['max_user_agent', _('User-Agent')],
-			['max_app_version', _('App version')],
-			['incoming_opcode', _('Incoming opcode'), 'number']
+			{ k: 'max_token', l: _('Web-токен'), t: 'secret', h: _('Временный токен веб-версии MAX. Скопируйте из браузера или получите через SMS-авторизацию во встроенном интерфейсе.') },
+			{ k: 'max_device_id', l: _('ID устройства'), t: 'secret', h: _('Идентификатор устройства из того же сеанса MAX, что и токен.') },
+			{ k: 'max_ws_url', l: _('Адрес WebSocket'), t: 'text', h: _('Адрес подключения MAX. По умолчанию wss://api.oneme.ru/websocket.') },
+			{ k: 'max_user_agent', l: _('User-Agent'), t: 'text', h: _('User-Agent браузера, из которого получен токен. Должен совпадать с сеансом MAX.') },
+			{ k: 'max_app_version', l: _('Версия клиента'), t: 'text', h: _('Версия веб-клиента MAX, например 26.11.9.') },
+			{ k: 'incoming_opcode', l: _('Опкод входящих'), t: 'number', h: _('Код события входящего сообщения. По умолчанию 128; если сообщения не приходят — попробуйте другое значение.') }
+		]
+	},
+	{
+		title: _('Telegram'),
+		fields: [
+			{ k: 'tg_bot_token', l: _('Токен бота'), t: 'secret', h: _('Получите у @BotFather командой /newbot.') },
+			{ k: 'tg_chat_id', l: _('ID чата'), t: 'text', h: _('ID чата с ботом: узнайте у @userinfobot или из ответа метода getUpdates.') },
+			{ k: 'telegram_proxy', l: _('Прокси'), t: 'text', h: _('Необязательно. Адрес HTTP/SOCKS5-прокси только для Telegram, например socks5://127.0.0.1:1080.') }
 		]
 	},
 	{
 		title: _('Bark'),
 		fields: [
-			['bark_server_url', _('Server URL')],
-			['bark_device_key', _('Device key'), 'secret'],
-			['bark_key', _('Encryption key'), 'secret'],
-			['bark_encrypt', _('Enable encryption'), 'bool'],
-			['bark_title', _('Title')],
-			['bark_sound', _('Sound')],
-			['bark_group', _('Group')],
-			['bark_level', _('Level')],
-			['bark_icon', _('Icon')],
-			['bark_click_url', _('Click URL')]
+			{ k: 'bark_server_url', l: _('Адрес сервера'), t: 'text', h: _('URL вашего сервера Bark, например https://bark.example.com.') },
+			{ k: 'bark_device_key', l: _('Ключ устройства'), t: 'secret', h: _('Ключ из QR-кода или ссылки, которую показывает приложение Bark.') },
+			{ k: 'bark_key', l: _('Ключ шифрования'), t: 'secret', h: _('Нужен только при включённом шифровании AES-128-CBC.') },
+			{ k: 'bark_encrypt', l: _('Включить шифрование'), t: 'bool', h: _('Шифровать текст уведомлений. Требуется ключ шифрования.') },
+			{ k: 'bark_title', l: _('Заголовок'), t: 'text', h: _('Заголовок push-уведомления.') },
+			{ k: 'bark_sound', l: _('Звук'), t: 'text', h: _('Название звука Bark, например birdsong.') },
+			{ k: 'bark_group', l: _('Группа'), t: 'text', h: _('Группа уведомлений в Bark.') },
+			{ k: 'bark_level', l: _('Уровень'), t: 'text', h: _('Уровень важности: active, timeSensitive, passive или critical.') },
+			{ k: 'bark_icon', l: _('Иконка'), t: 'text', h: _('Ссылка на изображение-иконку уведомления.') },
+			{ k: 'bark_click_url', l: _('Ссылка при нажатии'), t: 'text', h: _('Адрес, который откроется при нажатии на уведомление.') }
 		]
 	},
 	{
-		title: _('Autostart and interface'),
+		title: _('Автозапуск и интерфейс'),
 		fields: [
-			['autostart_vk', _('VK'), 'bool'],
-			['autostart_max', _('MAX'), 'bool'],
-			['autostart_tg', _('Telegram'), 'bool'],
-			['autostart_bark', _('Bark'), 'bool'],
-			['ui_enabled', _('Built-in web interface'), 'bool'],
-			['ui_listen', _('Listen address')]
+			{ k: 'autostart_vk', l: _('Автозапуск VK'), t: 'bool', h: _('Подключаться к VK автоматически при запуске программы.') },
+			{ k: 'autostart_max', l: _('Автозапуск MAX'), t: 'bool', h: _('Подключаться к MAX автоматически при запуске программы.') },
+			{ k: 'autostart_tg', l: _('Автозапуск Telegram'), t: 'bool', h: _('Готовить отправку в Telegram автоматически.') },
+			{ k: 'autostart_bark', l: _('Автозапуск Bark'), t: 'bool', h: _('Готовить отправку в Bark автоматически.') },
+			{ k: 'ui_enabled', l: _('Встроенный интерфейс'), t: 'bool', h: _('Включить локальную панель. По умолчанию выключена, порты не занимаются.') },
+			{ k: 'ui_listen', l: _('Адрес прослушивания'), t: 'text', h: _('Адрес и порт встроенной панели, например 127.0.0.1:8080.') }
 		]
 	}
 ];
@@ -73,32 +73,32 @@ function button(label, handler, style) {
 	return b;
 }
 
-function fieldInput(name, type, cfg) {
+function fieldInput(field, cfg) {
 	let input;
 
-	if (type === 'bool') {
+	if (field.t === 'bool') {
 		input = E('input', { type: 'checkbox' });
-		input.checked = cfg[name] !== false;
+		input.checked = cfg[field.k] !== false;
 	}
 	else {
 		input = E('input', {
-			type: (type === 'secret') ? 'password' : 'text',
-			'data-field': name
+			type: (field.t === 'secret') ? 'password' : 'text',
+			'data-field': field.k
 		});
 
-		if (type === 'secret' && cfg[name])
-			input.placeholder = _('configured');
-		else if (cfg[name] !== undefined && cfg[name] !== null)
-			input.value = String(cfg[name]);
+		if (field.t === 'secret' && cfg[field.k])
+			input.placeholder = _('установлено');
+		else if (cfg[field.k] !== undefined && cfg[field.k] !== null)
+			input.value = String(cfg[field.k]);
 
-		if (type === 'number' && cfg[name] !== undefined)
-			input.value = String(cfg[name]);
+		if (field.t === 'number' && cfg[field.k] !== undefined)
+			input.value = String(cfg[field.k]);
 	}
 
 	return input;
 }
 
-function collect(cfg, inputs) {
+function collect(cfg, inputs, types) {
 	const out = Object.assign({}, cfg);
 
 	for (const [name, input] of Object.entries(inputs)) {
@@ -118,7 +118,7 @@ function collect(cfg, inputs) {
 			continue;
 		}
 
-		out[name] = (input.dataset.type === 'number') ? parseInt(v, 10) : v;
+		out[name] = (types[name] === 'number') ? parseInt(v, 10) : v;
 	}
 
 	return out;
@@ -140,10 +140,11 @@ return view.extend({
 
 	render: function (cfg) {
 		const inputs = {};
-		const result = E('pre', { 'id': 'mf-result', 'class': 'mf-result' }, _('No output yet'));
+		const types = {};
+		const result = E('pre', { 'class': 'mf-result' }, _('Нет вывода'));
 
 		function show(text) {
-			result.textContent = text || _('(empty)');
+			result.textContent = text || _('(пусто)');
 		}
 
 		function cli(args) {
@@ -152,7 +153,7 @@ return view.extend({
 					return (r && r.stdout) ? r.stdout : (r && r.stderr) ? r.stderr : '';
 				})
 				.catch(function (e) {
-					return _('Error: ') + e.message;
+					return _('Ошибка: ') + e.message;
 				});
 		}
 
@@ -161,51 +162,51 @@ return view.extend({
 		}
 
 		function runAndShow(args) {
-			show(_('Working…'));
+			show(_('Работаю…'));
 			return cli(args).then(show);
 		}
 
 		function ctlAndShow(args) {
-			show(_('Working…'));
+			show(_('Работаю…'));
 			return ctl(args).then(show);
 		}
 
 		const body = E('div', { 'class': 'cbi-section' });
 
-		body.appendChild(E('h3', _('Connections')));
-		const statusLine = E('div', { 'class': 'mf-status' }, _('Status not loaded'));
+		body.appendChild(E('h3', _('Подключения')));
+		const statusLine = E('div', { 'class': 'mf-status' }, _('Статус не загружен'));
 		body.appendChild(statusLine);
 		body.appendChild(E('div', { 'class': 'cbi-section' }, [
-			button(_('Refresh status'), function () {
-				ctlAndShow(['status']).then(function () {
-					return ctl(['status']);
-				}).then(function (s) {
+			button(_('Обновить статус'), function () {
+				show(_('Работаю…'));
+				ctl(['status']).then(function (s) {
 					statusLine.textContent = s;
+					show(s);
 				});
 			}),
-			button(_('Check VK'), function () { runAndShow(['-test', 'vk']); }),
-			button(_('Check Bot API'), function () { runAndShow(['-test', 'api']); }),
-			button(_('Check Telegram'), function () { runAndShow(['-test', 'tg']); }),
-			button(_('Check MAX'), function () { runAndShow(['-test', 'max']); }),
-			button(_('Check Bark'), function () { runAndShow(['-test', 'bark']); })
+			button(_('Проверить VK'), function () { runAndShow(['-test', 'vk']); }),
+			button(_('Проверить Bot API'), function () { runAndShow(['-test', 'api']); }),
+			button(_('Проверить Telegram'), function () { runAndShow(['-test', 'tg']); }),
+			button(_('Проверить MAX'), function () { runAndShow(['-test', 'max']); }),
+			button(_('Проверить Bark'), function () { runAndShow(['-test', 'bark']); })
 		]));
-		body.appendChild(E('p', { 'class': 'note' },
-			_('MAX SMS login is available in the built-in interface only (enable ui_enabled there).')));
+		body.appendChild(E('p', { 'class': 'mf-help' },
+			_('SMS-авторизация MAX доступна только во встроенном интерфейсе: включите его галочкой ниже.')));
 
-		body.appendChild(E('h3', _('Service control')));
+		body.appendChild(E('h3', _('Управление сервисами')));
 		const controlRow = E('div', { 'class': 'cbi-section' });
 		for (const svc of ['vk', 'max', 'tg', 'bark']) {
-			controlRow.appendChild(button(svc.toUpperCase() + ': ' + _('on'), function () {
+			controlRow.appendChild(button(svc.toUpperCase() + ': ' + _('вкл'), function () {
 				ctlAndShow(['control', '-service', svc, '-action', 'on']);
 			}));
-			controlRow.appendChild(button(svc.toUpperCase() + ': ' + _('off'), function () {
+			controlRow.appendChild(button(svc.toUpperCase() + ': ' + _('выкл'), function () {
 				ctlAndShow(['control', '-service', svc, '-action', 'off']);
 			}));
 		}
-		controlRow.appendChild(button(_('Send test to Telegram'), function () {
+		controlRow.appendChild(button(_('Тест в Telegram'), function () {
 			ctlAndShow(['send', '-service', 'tg', '-text', 'проверка']);
 		}));
-		controlRow.appendChild(button(_('Send test to Bark'), function () {
+		controlRow.appendChild(button(_('Тест в Bark'), function () {
 			ctlAndShow(['send', '-service', 'bark', '-text', 'проверка']);
 		}));
 		body.appendChild(controlRow);
@@ -213,63 +214,65 @@ return view.extend({
 		for (const sec of sections) {
 			body.appendChild(E('h3', sec.title));
 
-			for (const [name, label, type] of sec.fields) {
-				const input = fieldInput(name, type, cfg);
-				input.dataset.type = type || 'text';
-				inputs[name] = input;
+			for (const field of sec.fields) {
+				const input = fieldInput(field, cfg);
+				inputs[field.k] = input;
+				types[field.k] = field.t;
 
-				const row = E('div', { 'class': 'cbi-row' }, [
-					E('label', { 'for': 'field-' + name }, label),
-					input
+				const holder = E('div', { 'class': 'mf-field' }, [
+					input,
+					E('div', { 'class': 'mf-help' }, field.h)
 				]);
-				input.id = 'field-' + name;
-				body.appendChild(row);
+
+				body.appendChild(E('div', { 'class': 'cbi-row' }, [
+					E('label', { 'for': 'field-' + field.k }, field.l),
+					holder
+				]));
+				input.id = 'field-' + field.k;
 			}
 		}
 
-		body.appendChild(E('h3', _('Debug')));
+		body.appendChild(E('h3', _('Отладка')));
 		body.appendChild(E('div', { 'class': 'cbi-section' }, [
-			button(_('Debug status'), function () {
+			button(_('Статус отладки'), function () {
 				ctlAndShow(['debug', '-action', 'status']);
 			}),
-			button(_('Debug on'), function () {
+			button(_('Включить'), function () {
 				ctlAndShow(['debug', '-action', 'on']);
 			}),
-			button(_('Debug off'), function () {
+			button(_('Выключить'), function () {
 				ctlAndShow(['debug', '-action', 'off']);
 			}),
-			button(_('Debug log'), function () {
+			button(_('Лог'), function () {
 				ctlAndShow(['debug', '-action', 'log']);
 			})
 		]));
 
-		body.appendChild(E('h3', _('JSON editor')));
+		body.appendChild(E('h3', _('Редактор JSON')));
 		const raw = E('textarea', { 'class': 'mf-raw', rows: 8 });
 		raw.value = JSON.stringify(cfg, null, 2);
 		body.appendChild(raw);
-		body.appendChild(E('p', { 'class': 'note' }, _('Secrets are visible here. Do not share this page.')));
+		body.appendChild(E('p', { 'class': 'mf-help' }, _('Здесь секреты видны открыто — не показывайте страницу посторонним.')));
 		body.appendChild(E('div', { 'class': 'cbi-section' }, [
-			button(_('Save raw JSON'), function () {
+			button(_('Сохранить JSON'), function () {
 				let next;
 				try {
 					next = JSON.parse(raw.value);
 				}
 				catch (e) {
-					show(_('Invalid JSON: ') + e.message);
+					show(_('Неверный JSON: ') + e.message);
 					return;
 				}
 				fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600).then(function () {
-					return ctl(['status']);
-				}).then(function () {
-					show(_('Saved'));
+					show(_('Сохранено'));
 				}).catch(function (e) {
-					show(_('Error: ') + e.message);
+					show(_('Ошибка: ') + e.message);
 				});
 			})
 		]));
 
-		const save = button(_('Save and restart'), function () {
-			const next = collect(cfg, inputs);
+		const save = button(_('Сохранить и перезапустить'), function () {
+			const next = collect(cfg, inputs, types);
 			fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600)
 				.then(function () {
 					return fs.exec('/etc/init.d/Msg-forwarder-Go', ['restart'])
@@ -278,17 +281,17 @@ return view.extend({
 						});
 				})
 				.then(function () {
-					show(_('Configuration saved'));
-					ui.addNotification(null, E('p', _('Configuration saved')));
+					show(_('Конфиг сохранён'));
+					ui.addNotification(null, E('p', _('Конфиг сохранён')));
 				})
 				.catch(function (e) {
-					show(_('Failed to save: ') + e.message);
+					show(_('Не удалось сохранить: ') + e.message);
 				});
 		}, 'btn-action');
 
 		body.appendChild(E('div', { 'class': 'cbi-section' }, save));
 		body.appendChild(E('p', {}, [
-			_('Token for the built-in interface:'),
+			_('Токен встроенного интерфейса:'),
 			' ',
 			E('code', {}, BIN + ' -config ' + CONFIG + ' -ui-token')
 		]));
@@ -298,7 +301,11 @@ return view.extend({
 			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; min-height:2em; white-space:pre-wrap; }' +
 			'.mf-raw { width:100%; font-family:monospace; }' +
 			'.mf-status { background:#f6f6f6; border:1px solid #ddd; padding:8px; white-space:pre-wrap; }' +
-			'.note { color:#666; font-size:12px; }' +
+			'.cbi-row { display:flex; align-items:flex-start; margin:8px 0; gap:8px; }' +
+			'.cbi-row > label { width:230px; flex:0 0 230px; padding-top:5px; }' +
+			'.cbi-row .mf-field { flex:1; min-width:0; }' +
+			'.cbi-row input[type=text], .cbi-row input[type=password] { width:100%; box-sizing:border-box; }' +
+			'.mf-help { color:#777; font-size:12px; margin-top:3px; }' +
 			'.btn-action { margin-top:8px; }');
 
 		return E('div', {}, [
