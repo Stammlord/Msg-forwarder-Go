@@ -17,6 +17,7 @@ echo "Удаляю файлы программы..."
 rm -f /usr/bin/Msg-forwarder-Go
 rm -f /etc/init.d/Msg-forwarder-Go
 rm -f /etc/rc.d/*Msg-forwarder-Go 2>/dev/null || true
+rm -f /etc/Msg-forwarder-Go/start.sh /etc/Msg-forwarder-Go/stop.sh /etc/Msg-forwarder-Go/autostart.sh
 
 echo "Удаляю файлы вкладки LuCI..."
 rm -f /usr/share/luci/menu.d/luci-app-msgforwarder.json
