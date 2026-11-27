@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Msg-forwarder-Go — предпросмотр вкладки LuCI</title>
+<style>
+body { font: 14px sans-serif; margin: 24px; background: #f6f6f6; color: #222; }
+.wrap { max-width: 820px; margin: auto; background: #fff; padding: 20px 24px; border: 1px solid #ddd; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+h1 { font-size: 20px; margin-top: 0; }
+h2 { font-size: 16px; margin: 22px 0 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+.row { display: flex; align-items: center; margin: 6px 0; }
+.row label { width: 250px; flex: none; }
+.row input[type=text], .row input[type=password] { flex: 1; padding: 5px; }
+.row input[type=checkbox] { width: auto; }
+.note { color: #666; font-size: 12px; margin: 4px 0 12px; }
+.buttons { margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+button { padding: 6px 12px; cursor: pointer; }
+code { background: #f2f2f2; padding: 1px 4px; }
+textarea { width: 100%; height: 120px; font-family: monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Msg-forwarder-Go</h1>
+<div class="note">Предпросмотр вкладки LuCI 25.12+ (локальная копия для сравнения). Секретные поля показывают только признак «установлено».</div>
+
+<h2>Подключения</h2>
+<div class="note">Статус: VK — не подключён; MAX — не подключён; Telegram — не проверен; Bark — не настроен.</div>
+<div class="buttons">
+  <button>Проверить VK</button>
+  <button>Проверить доступ к Bot API</button>
+  <button>Проверить Telegram</button>
+  <button>Проверить MAX</button>
+  <button>Получить токен MAX по SMS</button>
+  <button>Проверить Bark</button>
+</div>
+
+<h2>Управление сервисами</h2>
+<div class="buttons">
+  <button>VK: вкл/выкл</button>
+  <button>MAX: вкл/выкл</button>
+  <button>Telegram: вкл/выкл</button>
+  <button>Bark: вкл/выкл</button>
+  <button>Отправить тест в Telegram</button>
+  <button>Отправить тест в Bark</button>
+</div>
+
+<h2>VK</h2>
+<div class="row"><label>User token</label><input type="password" placeholder="установлен"></div>
+<div class="row"><label>App ID</label><input type="text"></div>
+<div class="row"><label>API version</label><input type="text" value="5.131"></div>
+
+<h2>Telegram</h2>
+<div class="row"><label>Bot token</label><input type="password" placeholder="установлен"></div>
+<div class="row"><label>Chat ID</label><input type="text"></div>
+<div class="row"><label>Proxy (http:// или socks5://)</label><input type="text"></div>
+
+<h2>MAX</h2>
+<div class="row"><label>Web token</label><input type="password" placeholder="установлен"></div>
+<div class="row"><label>Device ID</label><input type="password" placeholder="установлен"></div>
+<div class="row"><label>WebSocket URL</label><input type="text" value="wss://api.oneme.ru/websocket"></div>
+<div class="row"><label>User-Agent</label><input type="text"></div>
+<div class="row"><label>App version</label><input type="text"></div>
+<div class="row"><label>Incoming opcode</label><input type="text" value="128"></div>
+
+<h2>Bark</h2>
+<div class="row"><label>Server URL</label><input type="text"></div>
+<div class="row"><label>Device key</label><input type="password" placeholder="установлен"></div>
+<div class="row"><label>Encryption key</label><input type="password" placeholder="установлен"></div>
+<div class="row"><label>Enable encryption</label><input type="checkbox"></div>
+<div class="row"><label>Title</label><input type="text"></div>
+<div class="row"><label>Sound</label><input type="text"></div>
+<div class="row"><label>Group</label><input type="text"></div>
+<div class="row"><label>Level</label><input type="text"></div>
+<div class="row"><label>Icon</label><input type="text"></div>
+<div class="row"><label>Click URL</label><input type="text"></div>
+
+<h2>Автозапуск и интерфейс</h2>
+<div class="row"><label>VK</label><input type="checkbox"></div>
+<div class="row"><label>MAX</label><input type="checkbox"></div>
+<div class="row"><label>Telegram</label><input type="checkbox"></div>
+<div class="row"><label>Bark</label><input type="checkbox"></div>
+<div class="row"><label>Встроенный веб-интерфейс</label><input type="checkbox"></div>
+<div class="row"><label>Listen address</label><input type="text" value="127.0.0.1:8080"></div>
+
+<h2>Отладка</h2>
+<div class="buttons">
+  <button>Статус</button>
+  <button>Включить отладку</button>
+  <button>Выключить отладку</button>
+  <button>Показать лог</button>
+</div>
+
+<h2>Редактор JSON</h2>
+<textarea>{}</textarea>
+<div class="note">Внимание: здесь секреты видны открыто.</div>
+
+<div class="buttons">
+  <button>Сохранить и перезапустить</button>
+</div>
+<div class="note">Токен встроенного интерфейса: <code>/usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token</code></div>
+</div>
+</body>
+</html>
