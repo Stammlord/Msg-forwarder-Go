@@ -69,8 +69,8 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 <h2>Bark</h2>
 <div class="help">Программа отправляет POST /push с JSON. Вкладки GET и POST в приложении Bark — только примеры запроса, заполнять их не нужно. Поле body — это текст самого сообщения, оно подставляется автоматически.</div>
 <div class="row"><label>Адрес сервера</label><div class="field"><input type="text"><div class="help">Базовый URL из приложения Bark, например https://api.day.app. Программа сама добавит /push.</div></div></div>
-<div class="row"><label>Ключ устройства</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Значение device_key из настроек сервера Bark — часть ссылки после адреса хоста.</div></div></div>
-<div class="row"><label>Ключ шифрования</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Ровно 16 символов из поля Encryption Key в приложении Bark. Нужен только при шифровании.</div></div></div>
+<div class="row"><label>Ключ устройства</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Длинный ключ из ссылки Bark после адреса хоста (в документации пример на 22 символа). Это НЕ ключ шифрования; ограничения по длине нет.</div></div></div>
+<div class="row"><label>Ключ шифрования</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Ровно 16 символов из раздела «Push Encryption → Encryption Settings» приложения Bark. Нужен только при включённом шифровании.</div></div></div>
 <div class="row"><label>Включить шифрование</label><div class="field"><input type="checkbox"><div class="help">Поставьте галочку, если в Bark включено шифрование, и вставьте тот же ключ выше.</div></div></div>
 <div class="row"><label>Заголовок</label><div class="field"><input type="text"><div class="help">Поле title в JSON Bark. К нему автоматически добавится источник сообщения.</div></div></div>
 <div class="row"><label>Звук</label><div class="field"><input type="text"><div class="help">Поле sound в JSON Bark, например birdsong.</div></div></div>
