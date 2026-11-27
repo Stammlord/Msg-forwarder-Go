@@ -15,13 +15,13 @@ wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/main/inst
 
 Нужна архитектура `aarch64`. Скрипт скачает бинарник `Msg-forwarder-Go-arm64` и `init.d-Msg-forwarder-Go`, создаст пустой конфиг, выставит права, включит и запустит сервис от root. Если `procd` не поднял сервис, используется автозапуск через `/etc/rc.local`.
 
-Интерфейс — встроенный, без зависимости от LuCI и `luci-compat`. Установщик включит его на `0.0.0.0:8080`; открой `http://<IP-роутера>:8080/` и введи токен:
+Вкладка написана для **LuCI 25.12 и новее** на современном JS API (`menu.d` + `rpcd/acl.d` + JS-представление). Старые Lua-файлы вкладки при установке удаляются, `luci-compat` не нужен. Настройка находится в **Службы → Msg-forwarder-Go**. Встроенный веб-интерфейс остаётся локальным (`127.0.0.1:8080`) и используется только при необходимости; токен для него:
 
 ```sh
 /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token
 ```
 
-Удаление:
+Удаление (удаляются только файлы программы и вкладки, системные пакеты и прошивка не трогаются):
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/main/uninstall.sh | sh
