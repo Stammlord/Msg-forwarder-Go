@@ -65,16 +65,17 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 <div class="row"><label>Прокси</label><div class="field"><input type="text"><div class="help">Необязательно. Адрес HTTP/SOCKS5-прокси только для Telegram, например socks5://127.0.0.1:1080.</div></div></div>
 
 <h2>Bark</h2>
-<div class="row"><label>Адрес сервера</label><div class="field"><input type="text"><div class="help">URL вашего сервера Bark, например https://bark.example.com.</div></div></div>
-<div class="row"><label>Ключ устройства</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Ключ из QR-кода или ссылки, которую показывает приложение Bark.</div></div></div>
-<div class="row"><label>Ключ шифрования</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Нужен только при включённом шифровании AES-128-CBC.</div></div></div>
-<div class="row"><label>Включить шифрование</label><div class="field"><input type="checkbox"><div class="help">Шифровать текст уведомлений. Требуется ключ шифрования.</div></div></div>
-<div class="row"><label>Заголовок</label><div class="field"><input type="text"><div class="help">Заголовок push-уведомления.</div></div></div>
-<div class="row"><label>Звук</label><div class="field"><input type="text"><div class="help">Название звука Bark, например birdsong.</div></div></div>
-<div class="row"><label>Группа</label><div class="field"><input type="text"><div class="help">Группа уведомлений в Bark.</div></div></div>
-<div class="row"><label>Уровень</label><div class="field"><input type="text"><div class="help">Уровень важности: active, timeSensitive, passive или critical.</div></div></div>
-<div class="row"><label>Иконка</label><div class="field"><input type="text"><div class="help">Ссылка на изображение-иконку уведомления.</div></div></div>
-<div class="row"><label>Ссылка при нажатии</label><div class="field"><input type="text"><div class="help">Адрес, который откроется при нажатии на уведомление.</div></div></div>
+<div class="help">Программа отправляет POST /push с JSON. Вкладки GET и POST в приложении Bark — только примеры запроса, заполнять их не нужно. Поле body — это текст самого сообщения, оно подставляется автоматически.</div>
+<div class="row"><label>Адрес сервера</label><div class="field"><input type="text"><div class="help">Базовый URL из приложения Bark, например https://api.day.app. Программа сама добавит /push.</div></div></div>
+<div class="row"><label>Ключ устройства</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Значение device_key из настроек сервера Bark — часть ссылки после адреса хоста.</div></div></div>
+<div class="row"><label>Ключ шифрования</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Ровно 16 символов из поля Encryption Key в приложении Bark. Нужен только при шифровании.</div></div></div>
+<div class="row"><label>Включить шифрование</label><div class="field"><input type="checkbox"><div class="help">Поставьте галочку, если в Bark включено шифрование, и вставьте тот же ключ выше.</div></div></div>
+<div class="row"><label>Заголовок</label><div class="field"><input type="text"><div class="help">Поле title в JSON Bark. К нему автоматически добавится источник сообщения.</div></div></div>
+<div class="row"><label>Звук</label><div class="field"><input type="text"><div class="help">Поле sound в JSON Bark, например birdsong.</div></div></div>
+<div class="row"><label>Группа</label><div class="field"><input type="text"><div class="help">Поле group в JSON Bark.</div></div></div>
+<div class="row"><label>Уровень</label><div class="field"><input type="text"><div class="help">Поле level в JSON Bark: active, timeSensitive, passive или critical.</div></div></div>
+<div class="row"><label>Иконка</label><div class="field"><input type="text"><div class="help">Поле icon в JSON Bark — ссылка на картинку.</div></div></div>
+<div class="row"><label>Ссылка при нажатии</label><div class="field"><input type="text"><div class="help">Поле url в JSON Bark — адрес, который откроется по нажатию.</div></div></div>
 
 <h2>Автозапуск и интерфейс</h2>
 <div class="row"><label>Автозапуск VK</label><div class="field"><input type="checkbox"><div class="help">Подключаться к VK автоматически при запуске программы.</div></div></div>
