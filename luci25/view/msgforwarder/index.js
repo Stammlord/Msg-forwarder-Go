@@ -248,6 +248,26 @@ return view.extend({
 			});
 		}
 
+		const procDots = {};
+		const procLabels = {};
+		const procStates = { autostart: false, process: false };
+
+		function refreshProcess() {
+			return script('/etc/Msg-forwarder-Go/autostart.sh').then(function (s) {
+				show(s);
+				procStates.autostart = s.indexOf('автозапуск: включён') !== -1;
+				procStates.process = s.indexOf('процесс: запущен') !== -1;
+				for (const key of ['autostart', 'process']) {
+					const on = procStates[key];
+					if (procDots[key])
+						procDots[key].className = 'mf-dot ' + (on ? 'mf-on' : 'mf-off');
+					if (procLabels[key])
+						procLabels[key].textContent = (key === 'autostart' ? _('Автозапуск') : _('Процесс')) +
+							': ' + (on ? _('вкл') : _('выкл'));
+				}
+			});
+		}
+
 		function makeSaveButton() {
 			return button(_('Сохранить и перезапустить'), function () {
 				const next = collect(cfg, inputs, types);
@@ -290,6 +310,27 @@ return view.extend({
 		body.appendChild(E('p', { 'class': 'mf-help' },
 			_('SMS-авторизация MAX доступна только во встроенном интерфейсе: включите его галочкой ниже.')));
 
+		body.appendChild(E('h3', _('Управление процессом')));
+		const procRow = E('div', { 'class': 'cbi-section' });
+		for (const key of ['autostart', 'process']) {
+			const dot = E('span', { 'class': 'mf-dot mf-off' });
+			const label = E('span', {},
+				(key === 'autostart' ? _('Автозапуск') : _('Процесс')) + ': ' + _('выкл'));
+			procDots[key] = dot;
+			procLabels[key] = label;
+			const b = E('button', { 'class': 'btn', 'type': 'button' }, [dot, label]);
+			b.addEventListener('click', function () {
+				let path;
+				if (key === 'autostart')
+					path = procStates.autostart ? '/etc/Msg-forwarder-Go/autostart-off.sh' : '/etc/Msg-forwarder-Go/autostart-on.sh';
+				else
+					path = procStates.process ? '/etc/Msg-forwarder-Go/process-stop.sh' : '/etc/Msg-forwarder-Go/process-start.sh';
+				scriptAndShow(path).then(refreshProcess);
+			});
+			procRow.appendChild(b);
+		}
+		body.appendChild(procRow);
+
 		body.appendChild(E('h3', _('Управление сервисами')));
 		const controlRow = E('div', { 'class': 'cbi-section' });
 		for (const svc of ['vk', 'max', 'tg', 'bark']) {
@@ -311,19 +352,6 @@ return view.extend({
 			ctlAndShow(['send', '-service', 'bark', '-text', 'проверка']);
 		}));
 		body.appendChild(controlRow);
-
-		body.appendChild(E('h3', _('Управление процессом')));
-		body.appendChild(E('div', { 'class': 'cbi-section' }, [
-			button(_('Статус автозапуска'), function () {
-				scriptAndShow('/etc/Msg-forwarder-Go/autostart.sh');
-			}),
-			button(_('Включить'), function () {
-				scriptAndShow('/etc/Msg-forwarder-Go/start.sh');
-			}),
-			button(_('Полностью остановить'), function () {
-				scriptAndShow('/etc/Msg-forwarder-Go/stop.sh');
-			})
-		]));
 
 		for (const sec of sections) {
 			body.appendChild(E('h3', sec.title));
@@ -411,6 +439,7 @@ return view.extend({
 		]));
 		body.appendChild(result);
 		refreshStatus();
+		refreshProcess();
 
 		const style = E('style', {},
 			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; min-height:2em; white-space:pre-wrap; }' +
