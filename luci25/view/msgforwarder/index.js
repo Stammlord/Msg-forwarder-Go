@@ -174,6 +174,24 @@ return view.extend({
 			return ctl(args).then(show);
 		}
 
+		function downloadLog() {
+			show(_('Готовлю лог…'));
+			return ctl(['debug', '-action', 'log']).then(function (text) {
+				if (text && text.indexOf('FAIL:') === 0) {
+					show(text);
+					return;
+				}
+				const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+				const url = URL.createObjectURL(blob);
+				const a = E('a', { href: url, download: 'Msg-forwarder-Go-debug.log' });
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+				show(_('Лог сохранён в файл Msg-forwarder-Go-debug.log') + ' (' + text.length + ' ' + _('байт') + ')');
+			});
+		}
+
 		function makeSaveButton() {
 			return button(_('Сохранить и перезапустить'), function () {
 				const next = collect(cfg, inputs, types);
@@ -270,35 +288,46 @@ return view.extend({
 			button(_('Выключить'), function () {
 				ctlAndShow(['debug', '-action', 'off']);
 			}),
-			button(_('Лог'), function () {
-				ctlAndShow(['debug', '-action', 'log']);
+			button(_('Скачать лог'), function () {
+				downloadLog();
 			})
 		]));
 
 		body.appendChild(E('h3', _('Редактор JSON')));
 		const raw = E('textarea', { 'class': 'mf-raw', rows: 8 });
 		raw.value = JSON.stringify(cfg, null, 2);
-		body.appendChild(raw);
-		body.appendChild(E('p', { 'class': 'mf-help' }, _('Здесь секреты видны открыто — не показывайте страницу посторонним.')));
+		const jsonBox = E('div', { 'class': 'mf-json' }, [
+			raw,
+			E('p', { 'class': 'mf-help' }, _('Здесь секреты видны открыто — не показывайте страницу посторонним.')),
+			E('div', { 'class': 'cbi-section' }, [
+				button(_('Сохранить JSON'), function () {
+					let next;
+					try {
+						next = JSON.parse(raw.value);
+					}
+					catch (e) {
+						show(_('Неверный JSON: ') + e.message);
+						return;
+					}
+					fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600).then(function () {
+						return fs.exec('/etc/Msg-forwarder-Go/start.sh', []);
+					}).then(function () {
+						show(_('Сохранено'));
+					}).catch(function (e) {
+						show(_('Ошибка: ') + e.message);
+					});
+				})
+			])
+		]);
+		jsonBox.style.display = 'none';
 		body.appendChild(E('div', { 'class': 'cbi-section' }, [
-			button(_('Сохранить JSON'), function () {
-				let next;
-				try {
-					next = JSON.parse(raw.value);
-				}
-				catch (e) {
-					show(_('Неверный JSON: ') + e.message);
-					return;
-				}
-				fs.write(CONFIG, JSON.stringify(next, null, 2), 0o600).then(function () {
-					return fs.exec('/etc/Msg-forwarder-Go/start.sh', []);
-				}).then(function () {
-					show(_('Сохранено'));
-				}).catch(function (e) {
-					show(_('Ошибка: ') + e.message);
-				});
+			button(_('Показать редактор JSON'), function () {
+				const open = jsonBox.style.display === 'none';
+				jsonBox.style.display = open ? '' : 'none';
+				this.textContent = open ? _('Скрыть редактор JSON') : _('Показать редактор JSON');
 			})
 		]));
+		body.appendChild(jsonBox);
 
 		body.appendChild(E('div', { 'class': 'cbi-section' }, makeSaveButton()));
 		body.appendChild(E('p', {}, [
