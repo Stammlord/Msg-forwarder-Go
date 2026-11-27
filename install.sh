@@ -27,8 +27,28 @@ mkdir -p /etc/Msg-forwarder-Go
 chmod 700 /etc/Msg-forwarder-Go
 chmod 600 /etc/Msg-forwarder-Go/config.json
 
-/etc/init.d/Msg-forwarder-Go enable
-/etc/init.d/Msg-forwarder-Go restart
+/etc/init.d/Msg-forwarder-Go enable >/dev/null 2>&1 || true
+/etc/init.d/Msg-forwarder-Go restart >/dev/null 2>&1 || true
+
+if ! ps | grep -v grep | grep -q '[M]sg-forwarder-Go'; then
+  echo "procd не поднял сервис — запускаю через rc.local"
+  /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
+  cat > /etc/Msg-forwarder-Go/start.sh <<'EOF'
+#!/bin/sh
+/usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
+EOF
+  chmod 755 /etc/Msg-forwarder-Go/start.sh
+  LINE='/etc/Msg-forwarder-Go/start.sh'
+  [ -f /etc/rc.local ] || { echo '#!/bin/sh' > /etc/rc.local; echo 'exit 0' >> /etc/rc.local; chmod 755 /etc/rc.local; }
+  if ! grep -qF "$LINE" /etc/rc.local; then
+    if grep -q '^exit 0' /etc/rc.local; then
+      sed -i "s|^exit 0|$LINE\nexit 0|" /etc/rc.local
+    else
+      echo "$LINE" >> /etc/rc.local
+    fi
+  fi
+  /etc/Msg-forwarder-Go/start.sh
+fi
 
 echo "Готово. Токен веб-интерфейса:"
 echo "  /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token"
