@@ -89,13 +89,16 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 
 <h2>Отладка</h2>
 <div class="buttons">
-  <button>Статус отладки</button><button>Включить</button><button>Выключить</button><button>Лог</button>
+  <button>Статус отладки</button><button>Включить</button><button>Выключить</button><button>Скачать лог</button>
 </div>
 
 <h2>Редактор JSON</h2>
+<details>
+<summary>Показать редактор JSON</summary>
 <textarea>{}</textarea>
 <div class="help">Здесь секреты видны открыто — не показывайте страницу посторонним.</div>
 <div class="buttons"><button>Сохранить JSON</button></div>
+</details>
 
 <div class="buttons"><button>Сохранить и перезапустить</button></div>
 <div class="help">Токен встроенного интерфейса: <code>/usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json -ui-token</code></div>
