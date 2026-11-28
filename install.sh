@@ -117,6 +117,35 @@ EOF
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 EOF
+cat > /etc/Msg-forwarder-Go/process-toggle.sh <<'EOF'
+#!/bin/sh
+if ps | grep -q '[M]sg-forwarder-Go'; then
+  /etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
+  /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
+  kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+  sleep 1
+else
+  /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
+  setsid /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
+  sleep 1
+fi
+/etc/Msg-forwarder-Go/autostart.sh
+EOF
+cat > /etc/Msg-forwarder-Go/autostart-toggle.sh <<'EOF'
+#!/bin/sh
+LINE='/etc/Msg-forwarder-Go/start.sh'
+[ -f /etc/rc.local ] || { echo '#!/bin/sh' > /etc/rc.local; echo 'exit 0' >> /etc/rc.local; chmod 755 /etc/rc.local; }
+if grep -qF "$LINE" /etc/rc.local; then
+  sed -i '/Msg-forwarder-Go\/start.sh/d' /etc/rc.local
+else
+  if grep -q '^exit 0' /etc/rc.local; then
+    sed -i "s|^exit 0|$LINE\nexit 0|" /etc/rc.local
+  else
+    echo "$LINE" >> /etc/rc.local
+  fi
+fi
+/etc/Msg-forwarder-Go/autostart.sh
+EOF
 chmod 755 /etc/Msg-forwarder-Go/*.sh
 if ! ps | grep -v grep | grep -q '[M]sg-forwarder-Go'; then
   echo "procd не поднял сервис — запускаю через rc.local"
