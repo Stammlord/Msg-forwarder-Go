@@ -292,14 +292,14 @@ return view.extend({
 						procLabels[key].textContent = (key === 'autostart' ? _('Автозапуск') : _('Процесс')) +
 							': ' + (on ? _('вкл') : _('выкл'));
 				}
-				for (const key of ['autostartOn', 'autostartOff']) {
-					if (procDots[key])
-						procDots[key].className = 'mf-dot ' + (procStates.autostart ? 'mf-on' : 'mf-off');
-				}
-				for (const key of ['processStart', 'processStop']) {
-					if (procDots[key])
-						procDots[key].className = 'mf-dot ' + (procStates.process ? 'mf-on' : 'mf-off');
-				}
+				if (procDots.autostartOn)
+					procDots.autostartOn.className = 'mf-dot ' + (procStates.autostart ? 'mf-on' : 'mf-idle');
+				if (procDots.autostartOff)
+					procDots.autostartOff.className = 'mf-dot ' + (procStates.autostart ? 'mf-idle' : 'mf-off');
+				if (procDots.processStart)
+					procDots.processStart.className = 'mf-dot ' + (procStates.process ? 'mf-on' : 'mf-idle');
+				if (procDots.processStop)
+					procDots.processStop.className = 'mf-dot ' + (procStates.process ? 'mf-idle' : 'mf-off');
 			});
 		}
 
@@ -504,6 +504,7 @@ return view.extend({
 			'.mf-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; vertical-align:middle; }' +
 			'.mf-on { background:#2e8b2e; }' +
 			'.mf-off { background:#c22; }' +
+			'.mf-idle { background:#bbb; }' +
 			'.cbi-row { display:flex; align-items:flex-start; margin:8px 0; gap:8px; }' +
 			'.cbi-row > label { width:230px; flex:0 0 230px; padding-top:5px; }' +
 			'.cbi-row .mf-field { flex:1; min-width:0; }' +
