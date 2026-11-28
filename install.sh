@@ -62,7 +62,7 @@ if ! grep -qF "$LINE" /etc/rc.local; then
 fi
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
-/usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
+setsid /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
 EOF
   cat > /etc/Msg-forwarder-Go/stop.sh <<'EOF'
 #!/bin/sh
@@ -108,7 +108,7 @@ EOF
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
-/usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
+setsid /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
 EOF
   cat > /etc/Msg-forwarder-Go/process-stop.sh <<'EOF'
 #!/bin/sh
