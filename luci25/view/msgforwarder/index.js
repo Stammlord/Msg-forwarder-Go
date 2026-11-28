@@ -292,6 +292,14 @@ return view.extend({
 						procLabels[key].textContent = (key === 'autostart' ? _('Автозапуск') : _('Процесс')) +
 							': ' + (on ? _('вкл') : _('выкл'));
 				}
+				for (const key of ['autostartOn', 'autostartOff']) {
+					if (procDots[key])
+						procDots[key].className = 'mf-dot ' + (procStates.autostart ? 'mf-on' : 'mf-off');
+				}
+				for (const key of ['processStart', 'processStop']) {
+					if (procDots[key])
+						procDots[key].className = 'mf-dot ' + (procStates.process ? 'mf-on' : 'mf-off');
+				}
 			});
 		}
 
@@ -339,21 +347,37 @@ return view.extend({
 
 		body.appendChild(E('h3', _('Управление процессом')));
 		const procRow = E('div', { 'class': 'cbi-section' });
-		for (const key of ['autostart', 'process']) {
-			const dot = E('span', { 'class': 'mf-dot mf-off' });
-			const label = E('span', {},
-				(key === 'autostart' ? _('Автозапуск') : _('Процесс')) + ': ' + _('выкл'));
-			procDots[key] = dot;
-			procLabels[key] = label;
-			const b = E('button', { 'class': 'btn', 'type': 'button' }, [dot, label]);
-			b.addEventListener('click', function () {
-				const path = key === 'autostart'
-					? '/etc/Msg-forwarder-Go/autostart-toggle.sh'
-					: '/etc/Msg-forwarder-Go/process-toggle.sh';
-				scriptAndShow(path).then(refreshProcess);
-			});
-			procRow.appendChild(b);
-		}
+
+		const autoDotOn = E('span', { 'class': 'mf-dot mf-off' });
+		const autoDotOff = E('span', { 'class': 'mf-dot mf-off' });
+		procDots.autostartOn = autoDotOn;
+		procDots.autostartOff = autoDotOff;
+		const autoOn = E('button', { 'class': 'btn', 'type': 'button' }, [autoDotOn, _('Автозапуск: вкл')]);
+		autoOn.addEventListener('click', function () {
+			scriptAndShow('/etc/Msg-forwarder-Go/autostart-on.sh').then(refreshProcess);
+		});
+		const autoOff = E('button', { 'class': 'btn', 'type': 'button' }, [autoDotOff, _('Автозапуск: выкл')]);
+		autoOff.addEventListener('click', function () {
+			scriptAndShow('/etc/Msg-forwarder-Go/autostart-off.sh').then(refreshProcess);
+		});
+		procRow.appendChild(autoOn);
+		procRow.appendChild(autoOff);
+
+		const procDotOn = E('span', { 'class': 'mf-dot mf-off' });
+		const procDotOff = E('span', { 'class': 'mf-dot mf-off' });
+		procDots.processStart = procDotOn;
+		procDots.processStop = procDotOff;
+		const procOn = E('button', { 'class': 'btn', 'type': 'button' }, [procDotOn, _('Процесс: запустить')]);
+		procOn.addEventListener('click', function () {
+			scriptAndShow('/etc/Msg-forwarder-Go/process-start.sh').then(refreshProcess);
+		});
+		const procOff = E('button', { 'class': 'btn', 'type': 'button' }, [procDotOff, _('Процесс: остановить')]);
+		procOff.addEventListener('click', function () {
+			scriptAndShow('/etc/Msg-forwarder-Go/process-stop.sh').then(refreshProcess);
+		});
+		procRow.appendChild(procOn);
+		procRow.appendChild(procOff);
+
 		body.appendChild(procRow);
 
 		body.appendChild(E('h3', _('Управление сервисами')));
@@ -471,8 +495,6 @@ return view.extend({
 		body.appendChild(result);
 		refreshStatus();
 		refreshProcess();
-		setInterval(refreshStatus, 5000);
-		setInterval(refreshProcess, 5000);
 
 		const style = E('style', {},
 			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; height:4.5em; overflow-y:auto; white-space:pre-wrap; box-sizing:border-box; }' +
