@@ -50,12 +50,8 @@ const sections = [
 		]
 	},
 	{
-		title: _('Автозапуск и интерфейс'),
+		title: _('Интерфейс'),
 		fields: [
-			{ k: 'autostart_vk', l: _('Автозапуск VK'), t: 'bool', h: _('Подключаться к VK автоматически при запуске программы.') },
-			{ k: 'autostart_max', l: _('Автозапуск MAX'), t: 'bool', h: _('Подключаться к MAX автоматически при запуске программы.') },
-			{ k: 'autostart_tg', l: _('Автозапуск Telegram'), t: 'bool', h: _('Готовить отправку в Telegram автоматически.') },
-			{ k: 'autostart_bark', l: _('Автозапуск Bark'), t: 'bool', h: _('Готовить отправку в Bark автоматически.') },
 			{ k: 'ui_enabled', l: _('Встроенный интерфейс'), t: 'bool', h: _('Включить локальную панель. По умолчанию выключена, порты не занимаются.') },
 			{ k: 'ui_listen', l: _('Адрес прослушивания'), t: 'text', h: _('Адрес и порт встроенной панели, например 127.0.0.1:8080.') }
 		]
@@ -184,6 +180,7 @@ return view.extend({
 		const controlDots = {};
 		const controlLabels = {};
 		const serviceStates = {};
+		const svcAutoDots = {};
 
 		function setServicesOff(reason) {
 			statusLine.textContent = '';
@@ -237,6 +234,17 @@ return view.extend({
 							(info.state || '?') + (info.detail ? ' — ' + info.detail : '');
 				}
 			});
+		}
+
+		function updateSvcAutoDots() {
+			for (const svc of ['vk', 'max', 'tg', 'bark']) {
+				const dots = svcAutoDots[svc];
+				if (!dots)
+					continue;
+				const on = cfg['autostart_' + svc] !== false;
+				dots.on.className = 'mf-dot ' + (on ? 'mf-on' : 'mf-idle');
+				dots.off.className = 'mf-dot ' + (on ? 'mf-idle' : 'mf-off');
+			}
 		}
 
 		function runAndShow(args) {
@@ -395,6 +403,32 @@ return view.extend({
 				}).then(refreshStatus);
 			});
 			controlRow.appendChild(b);
+
+			const aOnDot = E('span', { 'class': 'mf-dot mf-idle' });
+			const aOffDot = E('span', { 'class': 'mf-dot mf-idle' });
+			svcAutoDots[svc] = { on: aOnDot, off: aOffDot };
+			const aOn = E('button', { 'class': 'btn', 'type': 'button' }, [aOnDot, svc.toUpperCase() + ' ' + _('авто: вкл')]);
+			aOn.addEventListener('click', function () {
+				ensureRunning().then(function () {
+					return ctlAndShow(['control', '-service', svc, '-action', 'autostart', '-value', 'true']);
+				}).then(function () {
+					cfg['autostart_' + svc] = true;
+					updateSvcAutoDots();
+					return refreshStatus();
+				});
+			});
+			const aOff = E('button', { 'class': 'btn', 'type': 'button' }, [aOffDot, svc.toUpperCase() + ' ' + _('авто: выкл')]);
+			aOff.addEventListener('click', function () {
+				ensureRunning().then(function () {
+					return ctlAndShow(['control', '-service', svc, '-action', 'autostart', '-value', 'false']);
+				}).then(function () {
+					cfg['autostart_' + svc] = false;
+					updateSvcAutoDots();
+					return refreshStatus();
+				});
+			});
+			controlRow.appendChild(aOn);
+			controlRow.appendChild(aOff);
 		}
 		controlRow.appendChild(button(_('Тест в Telegram'), function () {
 			ensureRunning().then(function () {
@@ -495,6 +529,7 @@ return view.extend({
 		body.appendChild(result);
 		refreshStatus();
 		refreshProcess();
+		updateSvcAutoDots();
 
 		const style = E('style', {},
 			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; height:4.5em; overflow-y:auto; white-space:pre-wrap; box-sizing:border-box; }' +
