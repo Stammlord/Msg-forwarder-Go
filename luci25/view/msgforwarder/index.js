@@ -249,6 +249,14 @@ return view.extend({
 			return ctl(args).then(show);
 		}
 
+		function ensureRunning() {
+			return ctl(['status']).then(function (s) {
+				if (s && s.indexOf('FAIL:') === 0)
+					return script('/etc/Msg-forwarder-Go/process-start.sh');
+				return null;
+			});
+		}
+
 		function downloadLog() {
 			show(_('Готовлю лог…'));
 			return ctl(['debug', '-action', 'log']).then(function (text) {
@@ -358,15 +366,21 @@ return view.extend({
 			const b = E('button', { 'class': 'btn', 'type': 'button' }, [dot, label]);
 			b.addEventListener('click', function () {
 				const act = serviceStates[svc] === 'on' ? 'off' : 'on';
-				ctlAndShow(['control', '-service', svc, '-action', act]).then(refreshStatus);
+				ensureRunning().then(function () {
+					return ctlAndShow(['control', '-service', svc, '-action', act]);
+				}).then(refreshStatus);
 			});
 			controlRow.appendChild(b);
 		}
 		controlRow.appendChild(button(_('Тест в Telegram'), function () {
-			ctlAndShow(['send', '-service', 'tg', '-text', 'проверка']);
+			ensureRunning().then(function () {
+				return ctlAndShow(['send', '-service', 'tg', '-text', 'проверка']);
+			});
 		}));
 		controlRow.appendChild(button(_('Тест в Bark'), function () {
-			ctlAndShow(['send', '-service', 'bark', '-text', 'проверка']);
+			ensureRunning().then(function () {
+				return ctlAndShow(['send', '-service', 'bark', '-text', 'проверка']);
+			});
 		}));
 		body.appendChild(controlRow);
 
