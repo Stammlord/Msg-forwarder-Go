@@ -10,7 +10,7 @@
 ## Установка на роутер одной командой
 
 ```sh
-wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/main/install.sh | sh
+wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/refs/heads/main/install.sh | sh
 ```
 
 Нужна архитектура `aarch64`. Скрипт скачает бинарник `Msg-forwarder-Go-arm64` и `init.d-Msg-forwarder-Go`, создаст пустой конфиг, выставит права, включит и запустит сервис от root. Если `procd` не поднял сервис, используется автозапуск через `/etc/rc.local`.
@@ -26,13 +26,13 @@ wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/main/inst
 Удаление (удаляются только файлы программы и вкладки, системные пакеты и прошивка не трогаются):
 
 ```sh
-wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/main/uninstall.sh | sh
+wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/refs/heads/main/uninstall.sh | sh
 ```
 
 Конфиг по умолчанию сохраняется; чтобы удалить и его, добавь `--purge`:
 
 ```sh
-wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/main/uninstall.sh | sh -s -- --purge
+wget -qO- https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/refs/heads/main/uninstall.sh | sh -s -- --purge
 ```
 
 ## Важные предупреждения
