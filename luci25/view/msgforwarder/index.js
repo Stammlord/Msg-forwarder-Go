@@ -475,7 +475,7 @@ return view.extend({
 		setInterval(refreshProcess, 5000);
 
 		const style = E('style', {},
-			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; min-height:2em; white-space:pre-wrap; }' +
+			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; height:4.5em; overflow-y:auto; white-space:pre-wrap; box-sizing:border-box; }' +
 			'.mf-raw { width:100%; font-family:monospace; }' +
 			'.mf-status { background:#f6f6f6; border:1px solid #ddd; padding:8px; }' +
 			'.mf-svc { margin:2px 0; }' +
