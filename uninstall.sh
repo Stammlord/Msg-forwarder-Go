@@ -6,7 +6,7 @@ set -e
 echo "Останавливаю сервис..."
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 /etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
-kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null || true
+kill $(ps | grep '[/]usr/bin/Msg-forwarder-Go' | awk '{print $1}') 2>/dev/null || true
 
 echo "Убираю автозапуск..."
 if [ -f /etc/rc.local ]; then
