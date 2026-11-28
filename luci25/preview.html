@@ -60,9 +60,13 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 <h2>Управление сервисами</h2>
 <div class="buttons">
   <button><span class="mf-dot mf-off"></span>VK: выкл</button>
+  <button><span class="mf-dot mf-idle"></span>VK авто: вкл</button><button><span class="mf-dot mf-off"></span>VK авто: выкл</button>
   <button><span class="mf-dot mf-off"></span>MAX: выкл</button>
+  <button><span class="mf-dot mf-idle"></span>MAX авто: вкл</button><button><span class="mf-dot mf-off"></span>MAX авто: выкл</button>
   <button><span class="mf-dot mf-on"></span>TG: вкл</button>
+  <button><span class="mf-dot mf-on"></span>TG авто: вкл</button><button><span class="mf-dot mf-idle"></span>TG авто: выкл</button>
   <button><span class="mf-dot mf-on"></span>BARK: вкл</button>
+  <button><span class="mf-dot mf-on"></span>BARK авто: вкл</button><button><span class="mf-dot mf-idle"></span>BARK авто: выкл</button>
   <button>Тест в Telegram</button><button>Тест в Bark</button>
 </div>
 
@@ -97,11 +101,7 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 <div class="row"><label>Иконка</label><div class="field"><input type="text"><div class="help">Поле icon в JSON Bark — ссылка на картинку.</div></div></div>
 <div class="row"><label>Ссылка при нажатии</label><div class="field"><input type="text"><div class="help">Поле url в JSON Bark — адрес, который откроется по нажатию.</div></div></div>
 
-<h2>Автозапуск и интерфейс</h2>
-<div class="row"><label>Автозапуск VK</label><div class="field"><input type="checkbox"><div class="help">Подключаться к VK автоматически при запуске программы.</div></div></div>
-<div class="row"><label>Автозапуск MAX</label><div class="field"><input type="checkbox"><div class="help">Подключаться к MAX автоматически при запуске программы.</div></div></div>
-<div class="row"><label>Автозапуск Telegram</label><div class="field"><input type="checkbox"><div class="help">Готовить отправку в Telegram автоматически.</div></div></div>
-<div class="row"><label>Автозапуск Bark</label><div class="field"><input type="checkbox"><div class="help">Готовить отправку в Bark автоматически.</div></div></div>
+<h2>Интерфейс</h2>
 <div class="row"><label>Встроенный интерфейс</label><div class="field"><input type="checkbox"><div class="help">Включить локальную панель. По умолчанию выключена, порты не занимаются.</div></div></div>
 <div class="row"><label>Адрес прослушивания</label><div class="field"><input type="text" value="127.0.0.1:8080"><div class="help">Адрес и порт встроенной панели, например 127.0.0.1:8080.</div></div></div>
 
