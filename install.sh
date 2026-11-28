@@ -104,12 +104,16 @@ sed -i '/Msg-forwarder-Go\/start.sh/d' /etc/rc.local 2>/dev/null || true
 EOF
   cat > /etc/Msg-forwarder-Go/process-start.sh <<'EOF'
 #!/bin/sh
+/etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
+/etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
 EOF
   cat > /etc/Msg-forwarder-Go/process-stop.sh <<'EOF'
 #!/bin/sh
+/etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
+/etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 EOF
