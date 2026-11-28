@@ -1,8 +1,9 @@
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 # Установка Msg-forwarder-Go на OpenWrt 25.12+ одной командой
 set -e
 
-BASE=https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/main
+BASE=https://raw.githubusercontent.com/Stammlord/Msg-forwarder-Go/refs/heads/main
 
 if [ "$(uname -m)" != "aarch64" ]; then
   echo "Нужна архитектура aarch64 (arm64), а не $(uname -m)" >&2
@@ -50,6 +51,7 @@ echo "Создаю служебные скрипты..."
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 cat > /etc/Msg-forwarder-Go/start.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 LINE='/etc/Msg-forwarder-Go/start.sh'
 [ -f /etc/rc.local ] || { echo '#!/bin/sh' > /etc/rc.local; echo 'exit 0' >> /etc/rc.local; chmod 755 /etc/rc.local; }
@@ -66,6 +68,7 @@ setsid /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev
 EOF
   cat > /etc/Msg-forwarder-Go/stop.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 sed -i '/Msg-forwarder-Go\/start.sh/d' /etc/rc.local 2>/dev/null || true
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
@@ -73,6 +76,7 @@ sleep 1
 EOF
   cat > /etc/Msg-forwarder-Go/autostart.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 if grep -qF '/etc/Msg-forwarder-Go/start.sh' /etc/rc.local 2>/dev/null; then
   echo 'автозапуск: включён (rc.local)'
 else
@@ -86,6 +90,7 @@ fi
 EOF
   cat > /etc/Msg-forwarder-Go/autostart-on.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 LINE='/etc/Msg-forwarder-Go/start.sh'
 [ -f /etc/rc.local ] || { echo '#!/bin/sh' > /etc/rc.local; echo 'exit 0' >> /etc/rc.local; chmod 755 /etc/rc.local; }
@@ -99,11 +104,13 @@ fi
 EOF
   cat > /etc/Msg-forwarder-Go/autostart-off.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 sed -i '/Msg-forwarder-Go\/start.sh/d' /etc/rc.local 2>/dev/null || true
 EOF
   cat > /etc/Msg-forwarder-Go/process-start.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
@@ -112,6 +119,7 @@ setsid /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev
 EOF
   cat > /etc/Msg-forwarder-Go/process-stop.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
@@ -119,6 +127,7 @@ sleep 1
 EOF
 cat > /etc/Msg-forwarder-Go/process-toggle.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 if ps | grep -q '[M]sg-forwarder-Go'; then
   /etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
   /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
@@ -133,6 +142,7 @@ fi
 EOF
 cat > /etc/Msg-forwarder-Go/autostart-toggle.sh <<'EOF'
 #!/bin/sh
+export PATH=/usr/bin:/bin:/sbin
 LINE='/etc/Msg-forwarder-Go/start.sh'
 [ -f /etc/rc.local ] || { echo '#!/bin/sh' > /etc/rc.local; echo 'exit 0' >> /etc/rc.local; chmod 755 /etc/rc.local; }
 if grep -qF "$LINE" /etc/rc.local; then
