@@ -320,11 +320,9 @@ return view.extend({
 			procLabels[key] = label;
 			const b = E('button', { 'class': 'btn', 'type': 'button' }, [dot, label]);
 			b.addEventListener('click', function () {
-				let path;
-				if (key === 'autostart')
-					path = procStates.autostart ? '/etc/Msg-forwarder-Go/autostart-off.sh' : '/etc/Msg-forwarder-Go/autostart-on.sh';
-				else
-					path = procStates.process ? '/etc/Msg-forwarder-Go/process-stop.sh' : '/etc/Msg-forwarder-Go/process-start.sh';
+				const path = key === 'autostart'
+					? '/etc/Msg-forwarder-Go/autostart-toggle.sh'
+					: '/etc/Msg-forwarder-Go/process-toggle.sh';
 				scriptAndShow(path).then(refreshProcess);
 			});
 			procRow.appendChild(b);
