@@ -185,10 +185,28 @@ return view.extend({
 		const controlLabels = {};
 		const serviceStates = {};
 
+		function setServicesOff(reason) {
+			statusLine.textContent = '';
+			for (const svc of ['vk', 'max', 'tg', 'bark']) {
+				const info = { state: 'off', detail: reason };
+				if (statusDots[svc])
+					statusDots[svc].className = 'mf-dot mf-off';
+				if (controlDots[svc]) {
+					for (const d of controlDots[svc])
+						d.className = 'mf-dot mf-off';
+				}
+				serviceStates[svc] = 'off';
+				if (controlLabels[svc])
+					controlLabels[svc].textContent = svc.toUpperCase() + ': ' + _('выкл');
+				if (statusLabels[svc])
+					statusLabels[svc].textContent = svc.toUpperCase() + ': off — ' + reason;
+			}
+			show(reason);
+		}
+
 		function refreshStatus() {
 			show(_('Работаю…'));
 			return ctl(['status']).then(function (s) {
-				show(s);
 				let data = null;
 				try {
 					data = JSON.parse(s);
@@ -197,9 +215,10 @@ return view.extend({
 					data = null;
 				}
 				if (!data) {
-					statusLine.textContent = s;
+					setServicesOff(_('процесс остановлен'));
 					return;
 				}
+				show(s);
 				statusLine.textContent = '';
 				for (const svc of ['vk', 'max', 'tg', 'bark']) {
 					const info = data[svc] || {};
