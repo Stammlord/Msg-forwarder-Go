@@ -224,11 +224,11 @@ return view.extend({
 						statusDots[svc].className = 'mf-dot ' + (on ? 'mf-on' : 'mf-off');
 					serviceStates[svc] = info.state || 'off';
 					if (controlDots[svc]) {
-						for (const d of controlDots[svc])
-							d.className = 'mf-dot ' + (on ? 'mf-on' : 'mf-off');
+						controlDots[svc].on.className = 'mf-dot ' + (on ? 'mf-on' : 'mf-idle');
+						controlDots[svc].off.className = 'mf-dot ' + (on ? 'mf-idle' : 'mf-off');
+						controlLabels[svc].on.textContent = svc.toUpperCase() + ': ' + _('вкл');
+						controlLabels[svc].off.textContent = svc.toUpperCase() + ': ' + _('выкл');
 					}
-					if (controlLabels[svc])
-						controlLabels[svc].textContent = svc.toUpperCase() + ': ' + (on ? _('вкл') : _('выкл'));
 					if (statusLabels[svc])
 						statusLabels[svc].textContent = svc.toUpperCase() + ': ' +
 							(info.state || '?') + (info.detail ? ' — ' + info.detail : '');
@@ -389,20 +389,33 @@ return view.extend({
 		body.appendChild(procRow);
 
 		body.appendChild(E('h3', _('Управление сервисами')));
-		const controlRow = E('div', { 'class': 'cbi-section' });
+		const controlArea = E('div', {});
 		for (const svc of ['vk', 'max', 'tg', 'bark']) {
-			const dot = E('span', { 'class': 'mf-dot mf-off' });
-			const label = E('span', {}, svc.toUpperCase() + ': ' + _('выкл'));
-			controlDots[svc] = [dot];
-			controlLabels[svc] = label;
-			const b = E('button', { 'class': 'btn', 'type': 'button' }, [dot, label]);
-			b.addEventListener('click', function () {
-				const act = serviceStates[svc] === 'on' ? 'off' : 'on';
+			const box = E('div', { 'class': 'mf-svcbox' });
+			box.appendChild(E('div', { 'class': 'mf-svctitle' }, svc.toUpperCase()));
+			const row = E('div', { 'class': 'cbi-section' });
+
+			const onDot = E('span', { 'class': 'mf-dot mf-idle' });
+			const offDot = E('span', { 'class': 'mf-dot mf-idle' });
+			const onLabel = E('span', {}, svc.toUpperCase() + ': ' + _('вкл'));
+			const offLabel = E('span', {}, svc.toUpperCase() + ': ' + _('выкл'));
+			controlDots[svc] = { on: onDot, off: offDot };
+			controlLabels[svc] = { on: onLabel, off: offLabel };
+
+			const onBtn = E('button', { 'class': 'btn', 'type': 'button' }, [onDot, onLabel]);
+			onBtn.addEventListener('click', function () {
 				ensureRunning().then(function () {
-					return ctlAndShow(['control', '-service', svc, '-action', act]);
+					return ctlAndShow(['control', '-service', svc, '-action', 'on']);
 				}).then(refreshStatus);
 			});
-			controlRow.appendChild(b);
+			const offBtn = E('button', { 'class': 'btn', 'type': 'button' }, [offDot, offLabel]);
+			offBtn.addEventListener('click', function () {
+				ensureRunning().then(function () {
+					return ctlAndShow(['control', '-service', svc, '-action', 'off']);
+				}).then(refreshStatus);
+			});
+			row.appendChild(onBtn);
+			row.appendChild(offBtn);
 
 			const aOnDot = E('span', { 'class': 'mf-dot mf-idle' });
 			const aOffDot = E('span', { 'class': 'mf-dot mf-idle' });
@@ -427,20 +440,28 @@ return view.extend({
 					return refreshStatus();
 				});
 			});
-			controlRow.appendChild(aOn);
-			controlRow.appendChild(aOff);
+			row.appendChild(aOn);
+			row.appendChild(aOff);
+
+			if (svc === 'tg') {
+				row.appendChild(button(_('Тест в Telegram'), function () {
+					ensureRunning().then(function () {
+						return ctlAndShow(['send', '-service', 'tg', '-text', 'проверка']);
+					});
+				}));
+			}
+			if (svc === 'bark') {
+				row.appendChild(button(_('Тест в Bark'), function () {
+					ensureRunning().then(function () {
+						return ctlAndShow(['send', '-service', 'bark', '-text', 'проверка']);
+					});
+				}));
+			}
+
+			box.appendChild(row);
+			controlArea.appendChild(box);
 		}
-		controlRow.appendChild(button(_('Тест в Telegram'), function () {
-			ensureRunning().then(function () {
-				return ctlAndShow(['send', '-service', 'tg', '-text', 'проверка']);
-			});
-		}));
-		controlRow.appendChild(button(_('Тест в Bark'), function () {
-			ensureRunning().then(function () {
-				return ctlAndShow(['send', '-service', 'bark', '-text', 'проверка']);
-			});
-		}));
-		body.appendChild(controlRow);
+		body.appendChild(controlArea);
 
 		for (const sec of sections) {
 			body.appendChild(E('h3', sec.title));
@@ -540,6 +561,8 @@ return view.extend({
 			'.mf-on { background:#2e8b2e; }' +
 			'.mf-off { background:#c22; }' +
 			'.mf-idle { background:#bbb; }' +
+			'.mf-svcbox { border:1px solid #ddd; padding:8px 10px; margin:10px 0; background:#fafafa; }' +
+			'.mf-svctitle { font-weight:bold; margin-bottom:6px; }' +
 			'.cbi-row { display:flex; align-items:flex-start; margin:8px 0; gap:8px; }' +
 			'.cbi-row > label { width:230px; flex:0 0 230px; padding-top:5px; }' +
 			'.cbi-row .mf-field { flex:1; min-width:0; }' +
