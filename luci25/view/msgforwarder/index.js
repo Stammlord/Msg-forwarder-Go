@@ -341,7 +341,7 @@ return view.extend({
 			const b = E('button', { 'class': 'btn', 'type': 'button' }, [dot, label]);
 			b.addEventListener('click', function () {
 				const act = serviceStates[svc] === 'on' ? 'off' : 'on';
-				ctlAndShow(['control', '-service', svc, '-action', act]);
+				ctlAndShow(['control', '-service', svc, '-action', act]).then(refreshStatus);
 			});
 			controlRow.appendChild(b);
 		}
@@ -440,6 +440,8 @@ return view.extend({
 		body.appendChild(result);
 		refreshStatus();
 		refreshProcess();
+		setInterval(refreshStatus, 5000);
+		setInterval(refreshProcess, 5000);
 
 		const style = E('style', {},
 			'.mf-result { background:#f6f6f6; border:1px solid #ddd; padding:8px; min-height:2em; white-space:pre-wrap; }' +
