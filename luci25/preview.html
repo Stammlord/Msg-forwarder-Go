@@ -23,6 +23,8 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 .mf-on { background:#2e8b2e; }
 .mf-off { background:#c22; }
 .mf-idle { background:#bbb; }
+.mf-svcbox { border:1px solid #ddd; padding:8px 10px; margin:10px 0; background:#fafafa; }
+.mf-svctitle { font-weight:bold; margin-bottom:6px; }
 </style>
 </head>
 <body>
@@ -58,17 +60,24 @@ textarea { width: 100%; height: 120px; font-family: monospace; box-sizing: borde
 </div>
 
 <h2>Управление сервисами</h2>
-<div class="buttons">
-  <button><span class="mf-dot mf-off"></span>VK: выкл</button>
+<div class="mf-svcbox"><div class="mf-svctitle">VK</div><div class="buttons">
+  <button><span class="mf-dot mf-idle"></span>VK: вкл</button><button><span class="mf-dot mf-off"></span>VK: выкл</button>
   <button><span class="mf-dot mf-idle"></span>VK авто: вкл</button><button><span class="mf-dot mf-off"></span>VK авто: выкл</button>
-  <button><span class="mf-dot mf-off"></span>MAX: выкл</button>
+</div></div>
+<div class="mf-svcbox"><div class="mf-svctitle">MAX</div><div class="buttons">
+  <button><span class="mf-dot mf-idle"></span>MAX: вкл</button><button><span class="mf-dot mf-off"></span>MAX: выкл</button>
   <button><span class="mf-dot mf-idle"></span>MAX авто: вкл</button><button><span class="mf-dot mf-off"></span>MAX авто: выкл</button>
-  <button><span class="mf-dot mf-on"></span>TG: вкл</button>
+</div></div>
+<div class="mf-svcbox"><div class="mf-svctitle">TG</div><div class="buttons">
+  <button><span class="mf-dot mf-on"></span>TG: вкл</button><button><span class="mf-dot mf-idle"></span>TG: выкл</button>
   <button><span class="mf-dot mf-on"></span>TG авто: вкл</button><button><span class="mf-dot mf-idle"></span>TG авто: выкл</button>
-  <button><span class="mf-dot mf-on"></span>BARK: вкл</button>
+  <button>Тест в Telegram</button>
+</div></div>
+<div class="mf-svcbox"><div class="mf-svctitle">BARK</div><div class="buttons">
+  <button><span class="mf-dot mf-on"></span>BARK: вкл</button><button><span class="mf-dot mf-idle"></span>BARK: выкл</button>
   <button><span class="mf-dot mf-on"></span>BARK авто: вкл</button><button><span class="mf-dot mf-idle"></span>BARK авто: выкл</button>
-  <button>Тест в Telegram</button><button>Тест в Bark</button>
-</div>
+  <button>Тест в Bark</button>
+</div></div>
 
 <h2>VK</h2>
 <div class="row"><label>Токен пользователя</label><div class="field"><input type="password" placeholder="установлено"><div class="help">Получить через OAuth ВКонтакте с правами messages или скопировать из настроек своего приложения.</div></div></div>
