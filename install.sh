@@ -62,7 +62,7 @@ if ! grep -qF "$LINE" /etc/rc.local; then
     echo "$LINE" >> /etc/rc.local
   fi
 fi
-kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+kill $(ps | grep '[/]usr/bin/Msg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 setsid /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
 EOF
@@ -71,7 +71,7 @@ EOF
 export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
 sed -i '/Msg-forwarder-Go\/start.sh/d' /etc/rc.local 2>/dev/null || true
-kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+kill $(ps | grep '[/]usr/bin/Msg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 EOF
   cat > /etc/Msg-forwarder-Go/autostart.sh <<'EOF'
@@ -82,7 +82,7 @@ if grep -qF '/etc/Msg-forwarder-Go/start.sh' /etc/rc.local 2>/dev/null; then
 else
   echo 'автозапуск: выключен'
 fi
-if ps | grep -q '[M]sg-forwarder-Go'; then
+if ps | grep -q '[/]usr/bin/Msg-forwarder-Go'; then
   echo 'процесс: запущен'
 else
   echo 'процесс: остановлен'
@@ -113,7 +113,7 @@ EOF
 export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
-kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+kill $(ps | grep '[/]usr/bin/Msg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 setsid /usr/bin/Msg-forwarder-Go -config /etc/Msg-forwarder-Go/config.json >/dev/null 2>&1 &
 EOF
@@ -122,16 +122,16 @@ EOF
 export PATH=/usr/bin:/bin:/sbin
 /etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
 /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
-kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+kill $(ps | grep '[/]usr/bin/Msg-forwarder-Go' | awk '{print $1}') 2>/dev/null
 sleep 1
 EOF
 cat > /etc/Msg-forwarder-Go/process-toggle.sh <<'EOF'
 #!/bin/sh
 export PATH=/usr/bin:/bin:/sbin
-if ps | grep -q '[M]sg-forwarder-Go'; then
+if ps | grep -q '[/]usr/bin/Msg-forwarder-Go'; then
   /etc/init.d/Msg-forwarder-Go stop >/dev/null 2>&1 || true
   /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
-  kill $(ps | grep '[M]sg-forwarder-Go' | awk '{print $1}') 2>/dev/null
+  kill $(ps | grep '[/]usr/bin/Msg-forwarder-Go' | awk '{print $1}') 2>/dev/null
   sleep 1
 else
   /etc/init.d/Msg-forwarder-Go disable >/dev/null 2>&1 || true
@@ -157,7 +157,7 @@ fi
 /etc/Msg-forwarder-Go/autostart.sh
 EOF
 chmod 755 /etc/Msg-forwarder-Go/*.sh
-if ! ps | grep -v grep | grep -q '[M]sg-forwarder-Go'; then
+if ! ps | grep -v grep | grep -q '[/]usr/bin/Msg-forwarder-Go'; then
   echo "procd не поднял сервис — запускаю через rc.local"
   /etc/Msg-forwarder-Go/start.sh
 fi
